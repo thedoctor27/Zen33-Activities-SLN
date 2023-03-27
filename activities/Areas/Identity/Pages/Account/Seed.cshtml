@@ -1,0 +1,33 @@
+﻿@page
+@model SeedModel
+
+@using activities.Models;
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>Data Seeding</h1>
+
+<div class="row">
+    <div class="col-md-10">
+        @if (string.IsNullOrEmpty(Model.StatusMessage))
+        {
+            <form id="registerForm" method="post">
+                <h2>Seed new 1000 random users for testing.</h2>
+                <hr />
+                <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Seed</button>
+            </form>
+        }
+        else
+        {
+            <div class="row">
+                <div class="alert alert-primary">
+                    <b>Seeding complete</b>
+                </div>
+
+            </div>
+
+        }
+
+    </div>
+</div>

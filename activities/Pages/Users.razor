@@ -1,0 +1,230 @@
+﻿@page "/users"
+@using activities.Extensions;
+@using activities.Models;
+@using activities.Repository.UserProfil;
+@inject IUserProfileReposiotry _profileService;
+@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Hosting;
+@using Microsoft.Extensions.Hosting;
+@inject IWebHostEnvironment Env;
+@using activities.Repository.Countries;
+@using activities.Repository.Languages;
+@using activities.Repository.Activities;
+@inject ICountriesRepository CountriesSerivce;
+@inject ILanguagesRepository LanguagesService;
+@inject IActivitiesRepository ActivitiesService;
+@inject IHttpContextAccessor HttpContextAccessor;
+<h3>Manage Users</h3>
+<EditForm Model="@searchModel" OnSubmit="(()=>SubmitNewSearch())">
+    <div class="row mb-2">
+        <div class="col-md-6">
+            <label class="form-label">Countries</label>
+            <InputSelect class="form-control" ValueExpression="@(()=>searchModel.IdCountry)" Value="@searchModel.IdCountry"
+                         ValueChanged="@((int value) => CountryChanged(value))">
+                <option value="0">Select a country</option>
+                @foreach (var cnt in countries.Where(x => ActiveCountries.Contains(x.Key)))
+                {
+                    <option value="@cnt.Key">@cnt.Value</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">City</label>
+            <InputText class="form-control" @bind-Value="searchModel.City"></InputText>
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-md-6">
+            <label class="form-label">Languages</label>
+            <InputSelect class="form-control" @bind-Value="searchModel.IdLanguage">
+                <option value="0">Select a language</option>
+                @foreach (var cnt in languages.Where(x => ActiveLanguages.Contains(x.Key)))
+                {
+                    <option value="@cnt.Key">@cnt.Value</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Activities</label>
+            <InputSelect class="form-control" @bind-Value="searchModel.IdActivity">
+                <option value="0">Select an activity</option>
+                @foreach (var cnt in activities.Where(x => ActiveActivities.Contains(x.Key)))
+                {
+                    <option value="@cnt.Key">@cnt.Value</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-md-6">
+            <label class="form-label">Results per page</label>
+
+            <InputSelect class="form-control" @bind-Value="searchModel.PageSize">
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            <br />
+            <button type="submit" disabled="@(searchModel.IdLanguage==0&&searchModel.IdCountry==0&&string.IsNullOrEmpty(searchModel.City))" class="btn btn-primary">Search</button>
+        </div>
+    </div>
+
+</EditForm>
+@if (profiles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Country</th>
+                <th>City</th>
+                <th>Language</th>
+                <th>Activity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var profile in profiles)
+            {
+                <tr>
+                    <td> <a target="_blank" href="Profile/@profile.UserId"> @profile.Name </a> </td>
+                    <td>@MapCountry(profile.IdCountry)</td>
+                    <td>@profile.City</td>
+                    <td>@MapLanguage(profile.IdLanguage)</td>
+                    <td>@MapActivity(profile.IdActivity)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <br />
+    <nav aria-label="navigation">
+        <ul class="pagination justify-content-center">
+            @for (int p = 1; p <= TotalSearchResults / searchModel.PageSize; p++)
+            {
+                var local_p = p;
+                <li class="page-item">
+                    <button type="button" class="btn @(local_p==currentPage ? "btn-primary" : "") " @onclick="(e=>UpdatePage(local_p))"> @local_p</button>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+@if (Env.IsDevelopment())
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-danger">
+                <b>Seeding DATA</b>
+                <a class="nav-link text-dark" id="register" asp-area="Identity" href="/Identity/Account/Seed">Seeding data</a>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    private int TotalSearchResults = 0;
+    private int currentPage = 1;
+    SearchModel searchModel = new SearchModel
+        {
+            IdActivity = 0,
+            IdCountry = 0,
+            IdLanguage = 0,
+            City = "",
+            PageSize = 25
+        };
+
+    private UserProfile[]? profiles = new UserProfile[] { };
+
+    private Dictionary<int, string> countries = new Dictionary<int, string>();
+    private Dictionary<int, string> languages = new Dictionary<int, string>();
+    private Dictionary<int, string> activities = new Dictionary<int, string>();
+    private int[] ActiveCountries = new int[] { };
+    private int[] ActiveLanguages = new int[] { };
+    private int[] ActiveActivities = new int[] { };
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await CountriesSerivce.InitData(GetBrowserLanguage.GetLanguageFromHeader(HttpContextAccessor.HttpContext));
+
+        countries = CountriesSerivce.GetAll().ToDictionary(s => s.Id, s => s.Name);
+
+        languages = LanguagesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
+
+        activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
+
+        ActiveCountries = await _profileService.GetProfilesCountries();
+        ActiveActivities = await _profileService.GetProfilesActivites();
+        ActiveLanguages = await _profileService.GetProfilesLanguages(0);
+
+    }
+    private async Task CountryChanged(int country)
+    {
+        searchModel.IdCountry = country;
+        searchModel.IdLanguage = 0;
+        ActiveLanguages = await _profileService.GetProfilesLanguages(searchModel.IdCountry);
+    }
+    private Task UpdatePage(int page)
+    {
+        currentPage = page;
+        return Search();
+    }
+    private async Task SubmitNewSearch()
+    {
+        TotalSearchResults = await _profileService.CountSearchProfiles(searchModel);
+        currentPage = 1;
+        StateHasChanged();
+        await Search();
+
+    }
+    private async Task Search()
+    {
+        profiles = null;
+        profiles = await _profileService.SearchProfiles(currentPage, searchModel);
+    }
+
+    private string MapCountry(int id)
+    {
+        try
+        {
+            return countries[id];
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+    private string MapLanguage(int id)
+    {
+        try
+        {
+            return languages[id];
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+    private string MapActivity(int id)
+    {
+        try
+        {
+            return activities[id];
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+
+    private void SeedRandomData()
+    {
+    }
+}

@@ -1,0 +1,148 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<h3>@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row">
+    <div class="col-md-8">
+        <form enctype="multipart/form-data" id="profile-form" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <input hidden asp-for="Input.Password" value="******" />
+            <input hidden asp-for="Input.ConfirmPassword" value="******" />
+            <input hidden asp-for="Input.Email" value="@Model.Username" />
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
+                        <label asp-for="Username" class="form-label"></label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="Input.Name" class="form-control" autocomplete="FullName" aria-required="true" placeholder="Joe doe" />
+                        <label asp-for="Input.Name">Full Name</label>
+                        <span asp-validation-for="Input.Name" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <select class="form-control" asp-for="Input.IdCountry">
+                            @foreach (var cnt in Model.countries)
+                            {
+                                <option value="@cnt.Id">@cnt.Name</option>
+                            }
+                        </select>
+                        <label asp-for="Input.IdCountry">Country</label>
+                        <span asp-validation-for="Input.IdCountry" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="Input.City" class="form-control" autocomplete="City" aria-required="true" placeholder="New York" />
+                        <label asp-for="Input.City">City</label>
+                        <span asp-validation-for="Input.City" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <select class="form-control" asp-for="Input.IdLanguage">
+                            @foreach (var cnt in Model.languages)
+                            {
+                                <option value="@cnt.Id">@cnt.Name</option>
+                            }
+                        </select>
+                        <label asp-for="Input.IdLanguage">Language</label>
+                        <span asp-validation-for="Input.IdLanguage" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <select class="form-control" asp-for="Input.IdActivity">
+                            @foreach (var cnt in Model.activities)
+                            {
+                                <option value="@cnt.Id">@cnt.Name</option>
+                            }
+                        </select>
+                        <label asp-for="Input.IdActivity">Activity</label>
+                        <span asp-validation-for="Input.IdActivity" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <div class="form-floating">
+                        <textarea asp-for="Input.About" class="form-control" style="height:100px" autocomplete="About" aria-required="true" placeholder="tell us about your self"></textarea>
+                        <label asp-for="Input.About">About</label>
+                        <span asp-validation-for="Input.About" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <div>
+                        <label asp-for="Input.Photo">Photo</label>
+                        <input type="file" accept=".png,.jpeg,.jpg" asp-for="Input.Photo" class="form-control" />
+                        <span asp-validation-for="Input.Photo" class="text-danger"></span>
+                        <small>10 mb max and only PNG,JPG and JPEG are accpeted.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <div class="form-check">
+                        <input asp-for="Input.Available" class="form-check-input" type="checkbox" value="true" checked>
+                        <label class="form-check-label" asp-for="Input.Available">
+                            Available
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <div>
+                        Approval : <b>@Model.Input.Approval</b>
+                        @if (Model.Input.Approval == "No")
+                        {
+                            <br />
+                             <span>Approvail message : </span>
+                            <span class="text-danger">@Model.Input.ApprovalMessage</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <div>
+                        Member : <b>@Model.Input.Member</b>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Update profile</button>
+
+        </form>
+    </div>
+    <div class="col-md-4">
+        @if (!string.IsNullOrEmpty(Model.Input.Base64Photo))
+        {
+            <img width="150" height="150" src="@Model.Input.Base64Photo" />
+        }
+        else
+        {
+            <p class="text-center">No photo found</p>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

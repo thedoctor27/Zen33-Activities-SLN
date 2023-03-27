@@ -1,0 +1,244 @@
+﻿@page "/Profile/{userId}"
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
+@using activities.Extensions;
+@using activities.Models;
+@using activities.Repository.UserProfil;
+@inject IUserProfileReposiotry _profileService;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using activities.Repository.Countries;
+@using activities.Repository.Languages;
+@using activities.Repository.Activities;
+@inject ICountriesRepository CountriesSerivce;
+@inject ILanguagesRepository LanguagesService;
+@inject IActivitiesRepository ActivitiesService;
+@inject IHttpContextAccessor HttpContextAccessor;
+<h3>User profile</h3>
+<AuthorizeView>
+    <Authorized>
+        @if (string.IsNullOrEmpty(currentUserId))
+        {
+            <p>Loading ...</p>
+        }
+        else
+        {
+            if (CurrentProfile == null)
+            {
+                <p>Loading current profile settings ...</p>
+            }
+            else
+            {
+                switch (CurrentProfile.Approval)
+                {
+                    case 0:
+                        <p>Once the profile has been approved, you will be able to see all details.</p>
+                        break;
+                    case 1:
+                        if (SearchedProfile == null)
+                        {
+                            <p>Loading profile ...</p>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Name : <b> @SearchedProfile.Name </b></h5>
+                                            <p class="card-text"> About : <br /> @SearchedProfile.About</p>
+                                        </div>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item">
+                                                User state : <b>
+                                                    @(SearchedProfile.Available == true ? "Available" : "Not available")
+                                                </b>
+                                            </li>
+                                            <li class="list-group-item">Country : <b>@MapCountry(SearchedProfile.IdCountry)</b></li>
+                                            <li class="list-group-item">City : <b>@SearchedProfile.City</b></li>
+                                            <li class="list-group-item">Language : <b>@MapLanguage(SearchedProfile.IdLanguage)</b></li>
+                                            <li class="list-group-item">Activity : <b>@MapActivity(SearchedProfile.IdActivity)</b></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 text-center">
+                                    @if (string.IsNullOrEmpty(Base64Photo))
+                                    {
+                                        <p>Loading user photo ...</p>
+                                    }
+                                    else
+                                    {
+                                        <img class="" width="200" height="200" src="@(Base64Photo=="NULL" ? "/images/DefaultUser.png" : Base64Photo )">
+                                    }
+                                </div>
+                            </div>
+
+                            <AuthorizeView Context="adminDiv" Roles="Admin">
+                                <div class="row mt-2">
+                                    <div class="col-md-7">
+                                        <EditForm Context="adminForm" Model="@approvalModel" OnSubmit="(()=>SubmitEdit())">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h5 class="card-title"><b> Edit profile state </b></h5>
+                                                </div>
+
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item">
+                                                        <label class="form-label">Approval</label>
+                                                        <InputRadioGroup @bind-Value="approvalModel.Approval">
+                                                            <br>
+                                                            <InputRadio Value="0" />Under Review <br>
+                                                            <InputRadio Value="1" />Yes      <br>
+                                                            <InputRadio Value="2" />No
+                                                        </InputRadioGroup>
+
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <label class="form-label">Member</label>
+                                                        <InputRadioGroup @bind-Value="approvalModel.Member">
+                                                            <br>
+                                                            <InputRadio Value="1" />Yes <br />
+                                                            <InputRadio Value="0" />No
+                                                        </InputRadioGroup>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <label class="form-label">Approval message</label>
+                                                        <InputText class="form-control" disabled="@(approvalModel.Approval!=2)" @bind-Value="approvalModel.ApprovalMessage"></InputText>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <p class="text-center text-success">@EditMessageSuccess</p>
+                                                        <p class="text-center text-danger">@EditMessageError</p>
+                                                    </li>
+                                                </ul>
+                                                <div class="card-footer">
+                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                </div>
+                                            </div>
+
+                                        </EditForm>
+
+
+                                    </div>
+                                </div>
+                            </AuthorizeView>
+                        }
+                        break;
+                    case 2:
+                        <p>Sorry, your profile has not been approved. Please visit your profile page to see the reason.</p>
+                        break;
+                }
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p class="text-center text-danger">please log in so you can display all user details.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter]
+    public string userId { get; set; }
+
+    public string currentUserId;
+
+    public UserProfile CurrentProfile;
+
+    public UserProfile SearchedProfile;
+
+    public ApprovalModel approvalModel;
+
+    public string EditMessageSuccess;
+    public string EditMessageError;
+
+    public string Base64Photo;
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+
+    }
+    private async Task Load()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).FirstOrDefault();
+
+        if (userIdClaim == null)
+        {
+            currentUserId = "NotIdentified";
+        }
+        else
+        {
+            currentUserId = userIdClaim.Value;
+            CurrentProfile = await _profileService.GetByUserId(currentUserId);
+            if (CurrentProfile != null)
+            {
+                if (CurrentProfile.Approval == 1)
+                {
+                    SearchedProfile = await _profileService.GetByUserId(userId);
+                    if (SearchedProfile != null)
+                    {
+                        approvalModel = new ApprovalModel
+                            {
+                                Approval = SearchedProfile.Approval,
+                                Member = SearchedProfile.Member,
+                                ApprovalMessage = SearchedProfile.ApprovalMessage
+                            };
+                        await LoadPhoto(SearchedProfile.UserId);
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    private async Task LoadPhoto(string userId)
+    {
+        Base64Photo = await _profileService.GetPhotoByUserId(userId);
+    }
+    private async Task SubmitEdit()
+    {
+        try
+        {
+            await _profileService.AdminEdit(SearchedProfile.UserId, approvalModel);
+            EditMessageSuccess = "User has beed updated successfully";
+        }
+        catch
+        {
+            EditMessageError = "Error has occured while updating the user, try later";
+        }
+    }
+
+    private string MapCountry(int id)
+    {
+        try
+        {
+            CountriesSerivce.InitData(GetBrowserLanguage.GetLanguageFromHeader(HttpContextAccessor.HttpContext)).Wait();
+            return CountriesSerivce.GetById(id).Name;
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+    private string MapLanguage(int id)
+    {
+        try
+        {
+            return LanguagesService.GetById(id).Name;
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+    private string MapActivity(int id)
+    {
+        try
+        {
+            return ActivitiesService.GetById(id).Name;
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+}
