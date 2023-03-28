@@ -1,15 +1,19 @@
+using activities;
 using activities.Areas.Identity;
 using activities.Data;
+using activities.Extensions;
 using activities.Repository.Activities;
-using activities.Repository.Countries;
-using activities.Repository.Languages;
 using activities.Repository.UserProfil;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,14 +25,34 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddRazorPages();
+
+
+builder.Services.AddLocalization();
+
+
+builder.Services.AddRazorPages().AddViewLocalization(LanguageViewLocationExpanderFormat
+                     .Suffix).AddDataAnnotationsLocalization(); ;
+
+
+//builder.Services.Configure<RequestLocalizationOptions>(options =>
+//{
+//    var supportedCultures = new[]
+//    {
+//            new CultureInfo("en-US"),
+//            new CultureInfo("fr-FR"),
+//            new CultureInfo("es-ES")
+//    };
+//    options.DefaultRequestCulture = new RequestCulture(culture: "en", uiCulture: "en");
+//    options.SupportedCultures = supportedCultures;
+//    options.SupportedUICultures = supportedCultures;
+//});
+
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IActivitiesRepository, ActivitiesRepository>();
-builder.Services.AddSingleton<ILanguagesRepository, LanguagesRepository>();
-builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
 builder.Services.AddScoped<IUserProfileReposiotry, UserProfileReposiotry>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 

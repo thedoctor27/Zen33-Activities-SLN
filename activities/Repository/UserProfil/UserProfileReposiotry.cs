@@ -18,13 +18,13 @@ namespace activities.Repository.UserProfil
         {
             return await _db.UserProfiles.Distinct().Select(s => s.IdActivity).ToArrayAsync();
         }
-        public async Task<int[]> GetProfilesCountries()
+        public async Task<string[]> GetProfilesCountries()
         {
-            return await _db.UserProfiles.Distinct().Select(s => s.IdCountry).ToArrayAsync();
+            return await _db.UserProfiles.Distinct().Select(s => s.IdCountry.ToString()).ToArrayAsync();
         }
-        public async Task<int[]> GetProfilesLanguages(int idCOuntry)
+        public async Task<string[]> GetProfilesLanguages(int idCOuntry)
         {
-            return await _db.UserProfiles.Where(p => idCOuntry == 0 ? true : p.IdCountry == idCOuntry).Distinct().Select(s => s.IdLanguage).ToArrayAsync();
+            return await _db.UserProfiles.Where(p => idCOuntry == 0 ? true : p.IdCountry == idCOuntry).Distinct().Select(s => s.IdLanguage.ToString()).ToArrayAsync();
         }
         public async Task<int> CountUsers()
         {

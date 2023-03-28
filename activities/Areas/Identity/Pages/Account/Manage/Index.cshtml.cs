@@ -11,12 +11,13 @@ using activities.Extensions;
 using activities.Models;
 using activities.Pages;
 using activities.Repository.Activities;
-using activities.Repository.Countries;
-using activities.Repository.Languages;
+
 using activities.Repository.UserProfil;
+using activities.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Localization;
 
 namespace activities.Areas.Identity.Pages.Account.Manage
 {
@@ -26,27 +27,27 @@ namespace activities.Areas.Identity.Pages.Account.Manage
         private readonly SignInManager<IdentityUser> _signInManager;
 
         private readonly IUserProfileReposiotry _profileRepository;
-        private readonly ICountriesRepository _countriesSerivce;
         private readonly IActivitiesRepository _activitiesRepository;
-        private readonly ILanguagesRepository _languagesRepository;
         private readonly IWebHostEnvironment _environment;
+        private readonly IStringLocalizer<Countries> _countriesLocalizer;
+        private readonly IStringLocalizer<Languages> _languagesLocalizer;
         public IndexModel(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
                         IUserProfileReposiotry profileReposiotry,
-            ICountriesRepository countriesSerivce,
             IActivitiesRepository activitiesRepository,
-            ILanguagesRepository languagesRepository,
-            IWebHostEnvironment Environment
+            IWebHostEnvironment Environment,
+                        IStringLocalizer<Countries> CountriesLocalizer,
+            IStringLocalizer<Languages> LanguagesLocalizer
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _profileRepository = profileReposiotry;
-            _countriesSerivce = countriesSerivce;
             _activitiesRepository = activitiesRepository;
-            _languagesRepository = languagesRepository;
             _environment = Environment;
+            _countriesLocalizer = CountriesLocalizer;
+            _languagesLocalizer = LanguagesLocalizer;
         }
 
         /// <summary>
@@ -74,9 +75,8 @@ namespace activities.Areas.Identity.Pages.Account.Manage
         public Activity[] activities;
         private async Task LoadResources()
         {
-            await _countriesSerivce.InitData(GetBrowserLanguage.GetLanguageFromHeader(HttpContext));
-            countries = _countriesSerivce.GetAll().ToArray();
-            languages = _languagesRepository.GetAll().ToArray();
+            countries = _countriesLocalizer.GetAllStrings().Select(s => new Country { Id = int.Parse(s.Name), Name = s.Value }).ToArray();
+            languages = _languagesLocalizer.GetAllStrings().Select(s => new Language { Id = int.Parse(s.Name), Name = s.Value }).ToArray();
             activities = _activitiesRepository.GetAll().ToArray();
         }
         private async Task loadProfile(string userId)

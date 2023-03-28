@@ -13,8 +13,8 @@ namespace activities.Repository.UserProfil
         Task<UserProfile> GetByUserId(string userId);
         Task<UserProfile[]> SearchProfiles(int pageNumber, SearchModel searchModel);
         Task<int[]> GetProfilesActivites();
-        Task<int[]> GetProfilesCountries();
-        Task<int[]> GetProfilesLanguages(int idCountry);
+        Task<string[]> GetProfilesCountries();
+        Task<string[]> GetProfilesLanguages(int idCountry);
         Task<int> CountSearchProfiles(SearchModel model);
     }
 }

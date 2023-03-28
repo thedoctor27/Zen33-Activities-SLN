@@ -1,8 +1,11 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+@using System.Globalization;
 
-<h1>Hello, world!</h1>
+<h1>Welcome</h1>
+<p>
+    <b>CurrentCulture</b>: @CultureInfo.CurrentCulture
+</p>
+@code {
 
-Welcome to your new app.
-<SurveyPrompt Title="How is Blazor working for you?" />
+}

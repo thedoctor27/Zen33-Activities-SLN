@@ -13,9 +13,8 @@ using System.Threading.Tasks;
 using activities.Models;
 using activities.Pages;
 using activities.Repository.Activities;
-using activities.Repository.Countries;
-using activities.Repository.Languages;
 using activities.Repository.UserProfil;
+using activities.Resources;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
@@ -26,6 +25,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.CodeAnalysis.Host;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -38,37 +38,34 @@ namespace activities.Areas.Identity.Pages.Account
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
-        private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly IUserProfileReposiotry _profileRepository;
-        private readonly ICountriesRepository _countriesSerivce;
         private readonly IActivitiesRepository _activitiesRepository;
-        private readonly ILanguagesRepository _languagesRepository;
         private readonly IWebHostEnvironment _environment;
+        private readonly IStringLocalizer<Countries> _countriesLocalizer;
+        private readonly IStringLocalizer<Languages> _languagesLocalizer;
 
         public SeedModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
-            ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             IUserProfileReposiotry profileReposiotry,
-            ICountriesRepository countriesSerivce,
             IActivitiesRepository activitiesRepository,
-            ILanguagesRepository languagesRepository,
-            IWebHostEnvironment Environment)
+            IWebHostEnvironment Environment,
+            IStringLocalizer<Countries> CountriesLocalizer,
+            IStringLocalizer<Languages> LanguagesLocalizer)
         {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
-            _logger = logger;
             _emailSender = emailSender;
             _profileRepository = profileReposiotry;
-            _countriesSerivce = countriesSerivce;
             _activitiesRepository = activitiesRepository;
-            _languagesRepository = languagesRepository;
             _environment = Environment;
+            _countriesLocalizer = CountriesLocalizer;
+            _languagesLocalizer = LanguagesLocalizer;
         }
 
         [TempData]
@@ -80,9 +77,9 @@ namespace activities.Areas.Identity.Pages.Account
 
         private async Task LoadResources()
         {
-            await _countriesSerivce.InitData("EN");
-            countries = _countriesSerivce.GetAll().ToArray();
-            languages = _languagesRepository.GetAll().ToArray();
+           
+            countries = _countriesLocalizer.GetAllStrings().Select( s=> new Country { Id=int.Parse(s.Name),Name=s.Value}).ToArray();
+            languages = _languagesLocalizer.GetAllStrings().Select(s => new Language { Id = int.Parse(s.Name), Name = s.Value }).ToArray();
             activities = _activitiesRepository.GetAll().ToArray();
         }
         public async Task OnGetAsync()

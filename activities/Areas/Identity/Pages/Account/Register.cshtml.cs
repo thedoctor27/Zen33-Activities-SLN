@@ -10,25 +10,17 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
-using activities.Extensions;
 using activities.Models;
 using activities.Pages;
-using activities.Repository.Activities;
-using activities.Repository.Countries;
-using activities.Repository.Languages;
 using activities.Repository.UserProfil;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using Microsoft.CodeAnalysis.Host;
 using Microsoft.Extensions.Logging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace activities.Areas.Identity.Pages.Account
 {
@@ -36,70 +28,99 @@ namespace activities.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
-        private readonly IUserProfileReposiotry _profileRepository;
-        private readonly ICountriesRepository _countriesSerivce;
-        private readonly IActivitiesRepository _activitiesRepository;
-        private readonly ILanguagesRepository _languagesRepository;
-        private readonly IWebHostEnvironment _environment;
+        private readonly IUserProfileReposiotry _userProfile;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+                        RoleManager<IdentityRole> roleManager,
+
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            IUserProfileReposiotry profileReposiotry,
-            ICountriesRepository countriesSerivce,
-            IActivitiesRepository activitiesRepository,
-            ILanguagesRepository languagesRepository,
-            IWebHostEnvironment Environment)
+            IUserProfileReposiotry userProfile
+            )
         {
-            _userManager = userManager;
             _roleManager = roleManager;
+            _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
-            _profileRepository = profileReposiotry;
-            _countriesSerivce = countriesSerivce;
-            _activitiesRepository = activitiesRepository;
-            _languagesRepository = languagesRepository;
-            _environment = Environment;
+            _userProfile = userProfile;
         }
 
-
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public string ReturnUrl { get; set; }
 
-        public Country[] countries;
-        public Language[] languages;
-        public Activity[] activities;
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
-        private async Task LoadResources()
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public class InputModel
         {
-            await _countriesSerivce.InitData(GetBrowserLanguage.GetLanguageFromHeader(HttpContext));
-            countries = _countriesSerivce.GetAll().ToArray();
-            languages = _languagesRepository.GetAll().ToArray();
-            activities = _activitiesRepository.GetAll().ToArray();
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [Required]
+            [EmailAddress]
+            [Display(Name = "Email")]
+            public string Email { get; set; }
+
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [Required]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [DataType(DataType.Password)]
+            [Display(Name = "Password")]
+            public string Password { get; set; }
+
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [DataType(DataType.Password)]
+            [Display(Name = "Confirm password")]
+            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            public string ConfirmPassword { get; set; }
         }
+
+
         public async Task OnGetAsync(string returnUrl = null)
         {
-            await LoadResources();
             ReturnUrl = returnUrl;
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
+
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-            
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
@@ -111,30 +132,49 @@ namespace activities.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
                     var userId = await _userManager.GetUserIdAsync(user);
-                    UserProfile profile = null;
+                    var profile = new UserProfile
+                    {
+                        UserId = userId,
+                        IdActivity = 0,
+                        Approval = 0,
+                        Member = 0,
+                        Available = false,
+                        IdCountry = 0,
+                        IdLanguage = 0,
+                        About = "",
+                        ApprovalMessage = "",
+                        City = "",
+                        Name = "",
+                        Base64Photo = ""
+                    };
+
                     try
                     {
-                        int UsersCount = await _profileRepository.CountUsers();
-
-                        profile = await CreateProfileAsync(userId, UsersCount);
+                        int UsersCount = await _userProfile.CountUsers();
                         if (UsersCount == 0)
                         {
                             //the first user is the admin by default
-                            var role = new IdentityRole { Id = "1", Name = "Admin"};
-                            await _roleManager.CreateAsync(role);
+                            profile.Approval = 1;
+                            profile.Member = 1;
+                            var role = await _roleManager.FindByNameAsync("Admin");
+                            if(role == null)
+                            {
+                                role = new IdentityRole { Id = "1", Name = "Admin" };
+                                await _roleManager.CreateAsync(role);
+                            }
                             await _userManager.AddToRoleAsync(user, "Admin");
                         }
+                        await _userProfile.Add(profile);
                     }
                     catch (Exception ex)
                     {
                         profile = null;
                         ModelState.AddModelError(string.Empty, ex.Message);
                     }
-
                     if (profile != null)
                     {
-
                         await _signInManager.SignInAsync(user, isPersistent: false);
                         return LocalRedirect(returnUrl);
                     }
@@ -142,26 +182,26 @@ namespace activities.Areas.Identity.Pages.Account
                     {
                         await _userManager.DeleteAsync(user);
                     }
-                    //var code = await _userManager.GenerateEmailConfimartionTokenAsync(user);
-                    //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    //var callbackUrl = Url.Page(
-                    //    "/Account/ConfirmEmail",
-                    //    pageHandler: null,
-                    //    values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                    //    protocol: Request.Scheme);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                        protocol: Request.Scheme);
 
-                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    //if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    //{
-                    //    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    //}
-                    //else
-                    //{
-                    //    await _signInManager.SignInAsync(user, isPersistent: false);
-                    //    return LocalRedirect(returnUrl);
-                    //}
+                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    {
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                    }
+                    else
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
                 }
                 foreach (var error in result.Errors)
                 {
@@ -169,34 +209,10 @@ namespace activities.Areas.Identity.Pages.Account
                 }
             }
 
-            await LoadResources();
-
             // If we got this far, something failed, redisplay form
             return Page();
         }
-        private async Task<UserProfile> CreateProfileAsync(string userId, int userCount)
-        {
-            string base64Image = "";
-            if (Input.Photo != null)
-            {
-                base64Image = await GenerateThumbnail.GetReducedImageBase64(Input.Photo);
-            }
-            return await _profileRepository.Add(new UserProfile
-            {
-                UserId = userId,
-                About = Input.About,
-                Approval = userCount == 0 ? 1 :0,
-                ApprovalMessage = "",
-                Available = Input.Available,
-                Base64Photo = base64Image,
-                City = Input.City,
-                IdActivity = Input.IdActivity,
-                IdCountry = Input.IdCountry,
-                IdLanguage = Input.IdLanguage,
-                Member = userCount == 0 ? 1 :0,
-                Name = Input.Name
-            });
-        }
+
         private IdentityUser CreateUser()
         {
             try

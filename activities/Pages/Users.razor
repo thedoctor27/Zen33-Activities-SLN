@@ -7,13 +7,13 @@
 @using Microsoft.AspNetCore.Hosting;
 @using Microsoft.Extensions.Hosting;
 @inject IWebHostEnvironment Env;
-@using activities.Repository.Countries;
-@using activities.Repository.Languages;
 @using activities.Repository.Activities;
-@inject ICountriesRepository CountriesSerivce;
-@inject ILanguagesRepository LanguagesService;
 @inject IActivitiesRepository ActivitiesService;
 @inject IHttpContextAccessor HttpContextAccessor;
+@using Microsoft.Extensions.Localization;
+@using activities.Resources;
+@inject IStringLocalizer<Countries> CountriesLocalizer
+@inject IStringLocalizer<Languages> LanguagesLocalizer
 <h3>Manage Users</h3>
 <EditForm Model="@searchModel" OnSubmit="(()=>SubmitNewSearch())">
     <div class="row mb-2">
@@ -142,21 +142,19 @@ else
 
     private UserProfile[]? profiles = new UserProfile[] { };
 
-    private Dictionary<int, string> countries = new Dictionary<int, string>();
-    private Dictionary<int, string> languages = new Dictionary<int, string>();
+    private Dictionary<string, string> countries = new Dictionary<string, string>();
+    private Dictionary<string, string> languages = new Dictionary<string, string>();
     private Dictionary<int, string> activities = new Dictionary<int, string>();
-    private int[] ActiveCountries = new int[] { };
-    private int[] ActiveLanguages = new int[] { };
+    private string[] ActiveCountries = new string[] { };
+    private string[] ActiveLanguages = new string[] { };
     private int[] ActiveActivities = new int[] { };
 
     protected override async Task OnInitializedAsync()
     {
 
-        await CountriesSerivce.InitData(GetBrowserLanguage.GetLanguageFromHeader(HttpContextAccessor.HttpContext));
+        countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
 
-        countries = CountriesSerivce.GetAll().ToDictionary(s => s.Id, s => s.Name);
-
-        languages = LanguagesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
+        languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
 
         activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
 
@@ -194,7 +192,7 @@ else
     {
         try
         {
-            return countries[id];
+            return countries[id.ToString()];
         }
         catch
         {
@@ -205,7 +203,7 @@ else
     {
         try
         {
-            return languages[id];
+            return languages[id.ToString()];
         }
         catch
         {
