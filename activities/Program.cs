@@ -34,18 +34,18 @@ builder.Services.AddRazorPages().AddViewLocalization(LanguageViewLocationExpande
                      .Suffix).AddDataAnnotationsLocalization(); ;
 
 
-//builder.Services.Configure<RequestLocalizationOptions>(options =>
-//{
-//    var supportedCultures = new[]
-//    {
-//            new CultureInfo("en-US"),
-//            new CultureInfo("fr-FR"),
-//            new CultureInfo("es-ES")
-//    };
-//    options.DefaultRequestCulture = new RequestCulture(culture: "en", uiCulture: "en");
-//    options.SupportedCultures = supportedCultures;
-//    options.SupportedUICultures = supportedCultures;
-//});
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+            new CultureInfo("en-US"),
+            new CultureInfo("fr-FR"),
+            new CultureInfo("es-ES")
+    };
+    options.DefaultRequestCulture = new RequestCulture(culture: "en", uiCulture: "en");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
