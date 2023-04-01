@@ -75,9 +75,9 @@ namespace activities.Areas.Identity.Pages.Account.Manage
         public Activity[] activities;
         private async Task LoadResources()
         {
-            countries = _countriesLocalizer.GetAllStrings().Select(s => new Country { Id = int.Parse(s.Name), Name = s.Value }).ToArray();
-            languages = _languagesLocalizer.GetAllStrings().Select(s => new Language { Id = int.Parse(s.Name), Name = s.Value }).ToArray();
-            activities = _activitiesRepository.GetAll().ToArray();
+            countries = _countriesLocalizer.GetAllStrings().Select(s => new Country { Id = int.Parse(s.Name), Name = s.Value }).OrderBy(s => s.Name).ToArray();
+            languages = _languagesLocalizer.GetAllStrings().Select(s => new Language { Id = int.Parse(s.Name), Name = s.Value }).OrderBy(s => s.Name).ToArray();
+            activities = _activitiesRepository.GetAll().OrderBy(s => s.Name).ToArray();
         }
         private async Task loadProfile(string userId)
         {
@@ -126,14 +126,14 @@ namespace activities.Areas.Identity.Pages.Account.Manage
             string base64Image = "";
             if (Input.Photo != null)
             {
-                base64Image = await GenerateThumbnail.GetReducedImageBase64(Input.Photo);
+                base64Image = "data:image/png;base64, " + await GenerateThumbnail.GetReducedImageBase64(Input.Photo);
             }
             return new UserProfile
             {
                 About = Input.About,
                 Approval = 0,
                 Available = Input.Available,
-                Base64Photo = "data:image/png;base64, "+ base64Image,
+                Base64Photo = base64Image,
                 City = Input.City,
                 IdActivity = Input.IdActivity,
                 IdCountry = Input.IdCountry,

@@ -41,7 +41,6 @@ namespace activities.Models
 
         public bool Available { get; set; }
 
-        [Required(ErrorMessage = "Please select a file.")]
         [DataType(DataType.Upload)]
         [MaxFileSize(10 * 1024 * 1024)]
         [AllowedExtensions(new string[] { ".jpg", ".png" })]

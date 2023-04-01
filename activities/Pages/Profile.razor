@@ -1,6 +1,7 @@
 ﻿@page "/Profile/{userId}"
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims;
+@using Microsoft.AspNetCore.Identity;
 @using activities.Extensions;
 @using activities.Models;
 @using activities.Repository.UserProfil;
@@ -13,7 +14,7 @@
 @using activities.Resources;
 @inject IStringLocalizer<Countries> CountriesLocalizer
 @inject IStringLocalizer<Languages> LanguagesLocalizer
-
+@inject UserManager<IdentityUser> _userManager;
 <h3>User profile</h3>
 <AuthorizeView>
     <Authorized>
@@ -68,7 +69,15 @@
                                     }
                                     else
                                     {
-                                        <img class="" width="200" height="200" src="@(Base64Photo=="NULL" ? "/images/DefaultUser.png" : Base64Photo )">
+                                        @if (Base64Photo == "NULL")
+                                        {
+                                            <p class="text-center">No photo found</p>
+                                        }
+                                        else
+                                        {
+                                            <img class="" width="200" height="200" src="@Base64Photo">
+
+                                        }
                                     }
                                 </div>
                             </div>
@@ -83,6 +92,10 @@
                                                 </div>
 
                                                 <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item">
+                                                        <label class="form-label">Admin role</label> <br>
+                                                        <InputCheckbox @bind-Value="approvalModel.isAdmin"></InputCheckbox> User Has ADMIN ROLE
+                                                    </li>
                                                     <li class="list-group-item">
                                                         <label class="form-label">Approval</label>
                                                         <InputRadioGroup @bind-Value="approvalModel.Approval">
@@ -168,6 +181,7 @@
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var userIdClaim = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).FirstOrDefault();
+        var userRole = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault();
 
         if (userIdClaim == null)
         {
@@ -177,10 +191,15 @@
         {
             currentUserId = userIdClaim.Value;
             CurrentProfile = await _profileService.GetByUserId(currentUserId);
+            if (userRole != null && userRole.Value.Contains("Admin"))
+            {
+                CurrentProfile.Approval = 1;
+            }
             if (CurrentProfile != null)
             {
                 if (CurrentProfile.Approval == 1)
                 {
+                    var user = await _userManager.FindByIdAsync(userId);
                     SearchedProfile = await _profileService.GetByUserId(userId);
                     if (SearchedProfile != null)
                     {
@@ -188,7 +207,8 @@
                             {
                                 Approval = SearchedProfile.Approval,
                                 Member = SearchedProfile.Member,
-                                ApprovalMessage = SearchedProfile.ApprovalMessage
+                                ApprovalMessage = SearchedProfile.ApprovalMessage,
+                                isAdmin = user == null ? false : await _userManager.IsInRoleAsync(user, "Admin")
                             };
                         await LoadPhoto(SearchedProfile.UserId);
                     }
@@ -208,6 +228,18 @@
         try
         {
             await _profileService.AdminEdit(SearchedProfile.UserId, approvalModel);
+            var user = await _userManager.FindByIdAsync(userId);
+            bool isAdminOld = await _userManager.IsInRoleAsync(user, "Admin");
+            if (!approvalModel.isAdmin && isAdminOld)
+            {
+                //remove the role admin
+                await _userManager.RemoveFromRoleAsync(user, "Admin");
+            }
+            else if (approvalModel.isAdmin && !isAdminOld)
+            {
+                //add the role admin
+                await _userManager.AddToRoleAsync(user, "Admin");
+            }
             EditMessageSuccess = "User has beed updated successfully";
         }
         catch

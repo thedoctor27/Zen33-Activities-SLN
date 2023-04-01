@@ -7,6 +7,7 @@ namespace activities.Models
         public int Approval { get; set; }
         public int Member { get; set; }
 
+        public bool isAdmin { get; set; }
 
         [MaxLength(200)]
         public string? ApprovalMessage { get; set; }

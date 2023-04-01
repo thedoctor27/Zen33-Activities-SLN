@@ -22,7 +22,7 @@
             <InputSelect class="form-control" ValueExpression="@(()=>searchModel.IdCountry)" Value="@searchModel.IdCountry"
                          ValueChanged="@((int value) => CountryChanged(value))">
                 <option value="0">Select a country</option>
-                @foreach (var cnt in countries.Where(x => ActiveCountries.Contains(x.Key)))
+                @foreach (var cnt in countries.Where(x => ActiveCountries.Contains(x.Key)).OrderBy(s=>s.Value))
                 {
                     <option value="@cnt.Key">@cnt.Value</option>
                 }
@@ -38,7 +38,7 @@
             <label class="form-label">Languages</label>
             <InputSelect class="form-control" @bind-Value="searchModel.IdLanguage">
                 <option value="0">Select a language</option>
-                @foreach (var cnt in languages.Where(x => ActiveLanguages.Contains(x.Key)))
+                @foreach (var cnt in languages.Where(x => ActiveLanguages.Contains(x.Key)).OrderBy(s => s.Value))
                 {
                     <option value="@cnt.Key">@cnt.Value</option>
                 }
@@ -48,7 +48,7 @@
             <label class="form-label">Activities</label>
             <InputSelect class="form-control" @bind-Value="searchModel.IdActivity">
                 <option value="0">Select an activity</option>
-                @foreach (var cnt in activities.Where(x => ActiveActivities.Contains(x.Key)))
+                @foreach (var cnt in activities.Where(x => ActiveActivities.Contains(x.Key)).OrderBy(s => s.Value))
                 {
                     <option value="@cnt.Key">@cnt.Value</option>
                 }
@@ -72,12 +72,14 @@
     </div>
 
 </EditForm>
+<hr />
 @if (profiles == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
+    <p>Total of @TotalSearchResults users found</p>
     <table class="table">
         <thead>
             <tr>
@@ -86,6 +88,8 @@ else
                 <th>City</th>
                 <th>Language</th>
                 <th>Activity</th>
+                <th>Approval</th>
+                <th>Member</th>
             </tr>
         </thead>
         <tbody>
@@ -97,6 +101,8 @@ else
                     <td>@profile.City</td>
                     <td>@MapLanguage(profile.IdLanguage)</td>
                     <td>@MapActivity(profile.IdActivity)</td>
+                    <td>@(profile.Approval == 0 ? "Under Review" : profile.Approval == 1 ? "Yes" : "No")</td>
+                    <td>@(profile.Member == 1 ? "Yes" : "No")</td>
                 </tr>
             }
         </tbody>
@@ -113,18 +119,6 @@ else
             }
         </ul>
     </nav>
-}
-
-@if (Env.IsDevelopment())
-{
-    <div class="row">
-        <div class="col-md-12">
-            <div class="alert alert-danger">
-                <b>Seeding DATA</b>
-                <a class="nav-link text-dark" id="register" asp-area="Identity" href="/Identity/Account/Seed">Seeding data</a>
-            </div>
-        </div>
-    </div>
 }
 
 @code {

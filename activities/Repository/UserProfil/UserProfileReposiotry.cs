@@ -35,7 +35,11 @@ namespace activities.Repository.UserProfil
             try
             {
                 var photo = await _db.UserProfiles.Select(s => new { id = s.UserId, photo = s.Base64Photo }).Where(p => p.id == userId).FirstOrDefaultAsync();
-                return photo == null ? "NULL" : photo.photo;
+                if(photo == null)
+                {
+                    return "NULL";
+                }
+                return string.IsNullOrEmpty(photo.photo) ? "NULL" : photo.photo;
             }
             catch(Exception ex)
             {
@@ -117,7 +121,11 @@ namespace activities.Repository.UserProfil
             userProfile.About = profile.About;
             userProfile.Approval = profile.Approval;
             userProfile.Available = profile.Available;
-            userProfile.Base64Photo = profile.Base64Photo;
+            if (!string.IsNullOrEmpty(profile.Base64Photo))
+            {
+                userProfile.Base64Photo = profile.Base64Photo;
+            }
+
             userProfile.City = profile.City;
             userProfile.IdActivity = profile.IdActivity;
             userProfile.IdCountry = profile.IdCountry;
