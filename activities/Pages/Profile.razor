@@ -18,6 +18,7 @@
 <h3>User profile</h3>
 <AuthorizeView>
     <Authorized>
+        <div class="row">
         @if (string.IsNullOrEmpty(currentUserId))
         {
             <p>Loading ...</p>
@@ -30,118 +31,174 @@
             }
             else
             {
-                switch (CurrentProfile.Approval)
+                if (currentUserIsAdmin)
                 {
-                    case 0:
-                        <p>Once the profile has been approved, you will be able to see all details.</p>
-                        break;
-                    case 1:
-                        if (SearchedProfile == null)
-                        {
-                            <p>Loading profile ...</p>
-                        }
-                        else
-                        {
-                            <div class="row">
-                                <div class="col-md-7">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Name : <b> @SearchedProfile.Name </b></h5>
-                                            <p class="card-text"> About : <br /> @SearchedProfile.About</p>
+                        <div class="col-md-7">
+                            <EditForm Context="adminForm" Model="@SearchedProfile" OnSubmit="(()=>SubmitEdit())">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><b> Edit profile state </b></h5>
+                                        <div class="form-group">
+                                            <label class="form-label">Name</label>
+                                            <InputText class="form-control" @bind-Value="SearchedProfile.Name"></InputText>
                                         </div>
-                                        <ul class="list-group list-group-flush">
-                                            <li class="list-group-item">
-                                                User state : <b>
-                                                    @(SearchedProfile.Available == true ? "Available" : "Not available")
-                                                </b>
-                                            </li>
-                                            <li class="list-group-item">Country : <b>@MapCountry(SearchedProfile.IdCountry)</b></li>
-                                            <li class="list-group-item">City : <b>@SearchedProfile.City</b></li>
-                                            <li class="list-group-item">Language : <b>@MapLanguage(SearchedProfile.IdLanguage)</b></li>
-                                            <li class="list-group-item">Activity : <b>@MapActivity(SearchedProfile.IdActivity)</b></li>
-                                        </ul>
+                                        <div class="form-group">
+                                            <label class="form-label">Country</label>
+                                            <InputSelect class="form-control" @bind-Value="@SearchedProfile.IdCountry">
+                                                <option value="0">Select a country</option>
+                                                @foreach (var cnt in countries.OrderBy(s => s.Value))
+                                                {
+                                                    <option value="@cnt.Key">@cnt.Value</option>
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">City</label>
+                                            <InputText class="form-control" @bind-Value="SearchedProfile.City"></InputText>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Language</label>
+                                            <InputSelect class="form-control" @bind-Value="@SearchedProfile.IdLanguage">
+                                                <option value="0">Select a language</option>
+                                                @foreach (var cnt in languages.OrderBy(s => s.Value))
+                                                {
+                                                    <option value="@cnt.Key">@cnt.Value</option>
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Activity</label>
+                                            <InputSelect class="form-control" @bind-Value="@SearchedProfile.IdActivity">
+                                                <option value="0">Select an activity</option>
+                                                @foreach (var cnt in activities.OrderBy(s => s.Value))
+                                                {
+                                                    <option value="@cnt.Key">@cnt.Value</option>
+                                                }
+                                            </InputSelect>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label">About</label>
+                                            <InputTextArea  style="height:100px" class="form-control" @bind-Value="SearchedProfile.About"></InputTextArea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Photo</label>
+                                            <InputFile accept=".png,.jpeg,.jpg" OnChange="@LoadFiles" class="form-control"></InputFile>
+                                        </div>
+                                        <div class="form-group">
+                                            <InputCheckbox @bind-Value="SearchedProfile.Available"></InputCheckbox> Available
+                                        </div>
+                                    </div>
+
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <label class="form-label">Admin role</label> <br>
+                                            @* @onchange="@CheckedAdmin"*@
+                                            <InputCheckbox @bind-Value="isAdminChecked"></InputCheckbox> User Has ADMIN ROLE
+                                        </li>
+                                        <li class="list-group-item">
+                                            <label class="form-label">Approval</label>
+                                            <InputRadioGroup @bind-Value="SearchedProfile.Approval">
+                                                <br>
+                                                <InputRadio Value="0" />Under Review <br>
+                                                <InputRadio Value="1" />Yes      <br>
+                                                <InputRadio Value="2" />No
+                                            </InputRadioGroup>
+
+                                        </li>
+                                        <li class="list-group-item">
+                                            <label class="form-label">Member</label>
+                                            <InputRadioGroup @bind-Value="SearchedProfile.Member">
+                                                <br>
+                                                <InputRadio Value="1" />Yes <br />
+                                                <InputRadio Value="0" />No
+                                            </InputRadioGroup>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <label class="form-label">Approval message</label>
+                                            <InputText class="form-control" disabled="@(SearchedProfile.Approval!=2)" @bind-Value="SearchedProfile.ApprovalMessage"></InputText>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <p class="text-center text-success">@EditMessageSuccess</p>
+                                            <p class="text-center text-danger">@EditMessageError</p>
+                                        </li>
+                                    </ul>
+                                    <div class="card-footer">
+                                        <button type="submit" disabled="@loadingSubmit" class="btn btn-primary">Submit</button>
                                     </div>
                                 </div>
-                                <div class="col-md-5 text-center">
-                                    @if (string.IsNullOrEmpty(Base64Photo))
-                                    {
-                                        <p>Loading user photo ...</p>
-                                    }
-                                    else
-                                    {
-                                        @if (Base64Photo == "NULL")
-                                        {
-                                            <p class="text-center">No photo found</p>
-                                        }
-                                        else
-                                        {
-                                            <img class="" width="200" height="200" src="@Base64Photo">
 
-                                        }
-                                    }
-                                </div>
-                            </div>
-
-                            <AuthorizeView Context="adminDiv" Roles="Admin">
-                                <div class="row mt-2">
-                                    <div class="col-md-7">
-                                        <EditForm Context="adminForm" Model="@approvalModel" OnSubmit="(()=>SubmitEdit())">
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <h5 class="card-title"><b> Edit profile state </b></h5>
-                                                </div>
-
-                                                <ul class="list-group list-group-flush">
-                                                    <li class="list-group-item">
-                                                        <label class="form-label">Admin role</label> <br>
-                                                        <InputCheckbox @bind-Value="approvalModel.isAdmin"></InputCheckbox> User Has ADMIN ROLE
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        <label class="form-label">Approval</label>
-                                                        <InputRadioGroup @bind-Value="approvalModel.Approval">
-                                                            <br>
-                                                            <InputRadio Value="0" />Under Review <br>
-                                                            <InputRadio Value="1" />Yes      <br>
-                                                            <InputRadio Value="2" />No
-                                                        </InputRadioGroup>
-
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        <label class="form-label">Member</label>
-                                                        <InputRadioGroup @bind-Value="approvalModel.Member">
-                                                            <br>
-                                                            <InputRadio Value="1" />Yes <br />
-                                                            <InputRadio Value="0" />No
-                                                        </InputRadioGroup>
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        <label class="form-label">Approval message</label>
-                                                        <InputText class="form-control" disabled="@(approvalModel.Approval!=2)" @bind-Value="approvalModel.ApprovalMessage"></InputText>
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        <p class="text-center text-success">@EditMessageSuccess</p>
-                                                        <p class="text-center text-danger">@EditMessageError</p>
-                                                    </li>
-                                                </ul>
-                                                <div class="card-footer">
-                                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                                </div>
-                                            </div>
-
-                                        </EditForm>
+                            </EditForm>
 
 
-                                    </div>
-                                </div>
-                            </AuthorizeView>
-                        }
-                        break;
-                    case 2:
-                        <p>Sorry, your profile has not been approved. Please visit your profile page to see the reason.</p>
-                        break;
+                        </div>
                 }
+                else
+                {
+                    switch (CurrentProfile.Approval)
+                    {
+                        case 0:
+                            <p>Once the profile has been approved, you will be able to see all details.</p>
+                            break;
+                        case 1:
+                            if (SearchedProfile == null)
+                            {
+                                <p>Loading profile ...</p>
+                            }
+                            else
+                            {
+                               
+                                    <div class="col-md-7">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Name : <b> @SearchedProfile.Name </b></h5>
+                                                <p class="card-text"> About : <br /> @SearchedProfile.About</p>
+                                            </div>
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item">
+                                                    User state : <b>
+                                                        @(SearchedProfile.Available == true ? "Available" : "Not available")
+                                                    </b>
+                                                </li>
+                                                <li class="list-group-item">Country : <b>@MapCountry(SearchedProfile.IdCountry)</b></li>
+                                                <li class="list-group-item">City : <b>@SearchedProfile.City</b></li>
+                                                <li class="list-group-item">Language : <b>@MapLanguage(SearchedProfile.IdLanguage)</b></li>
+                                                <li class="list-group-item">Activity : <b>@MapActivity(SearchedProfile.IdActivity)</b></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                              
+
+                            }
+                            break;
+                        case 2:
+                            <p>Sorry, your profile has not been approved. Please visit your profile page to see the reason.</p>
+                            break;
+                    }
+                }
+
             }
         }
+        <div class="col-md-5 text-center">
+            @if (string.IsNullOrEmpty(Base64Photo))
+            {
+                <p>Loading user photo ...</p>
+            }
+            else
+            {
+                @if (Base64Photo == "NULL")
+                {
+                    <p class="text-center">No photo found</p>
+                }
+                else
+                {
+                    <img class="" width="200" height="200" src="@Base64Photo">
+
+                }
+            }
+        </div>
+        </div>
     </Authorized>
     <NotAuthorized>
         <p class="text-center text-danger">please log in so you can display all user details.</p>
@@ -153,12 +210,15 @@
     public string userId { get; set; }
 
     public string currentUserId;
+    public bool currentUserIsAdmin = false;
+
+    public bool isAdminChecked = false;
+
+    public bool loadingSubmit = false;
 
     public UserProfile CurrentProfile;
 
     public UserProfile SearchedProfile;
-
-    public ApprovalModel approvalModel;
 
     public string EditMessageSuccess;
     public string EditMessageError;
@@ -167,6 +227,7 @@
 
     private Dictionary<string, string> countries = new Dictionary<string, string>();
     private Dictionary<string, string> languages = new Dictionary<string, string>();
+    private Dictionary<int, string> activities = new Dictionary<int, string>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -178,6 +239,7 @@
         countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
 
         languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+        activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var userIdClaim = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).FirstOrDefault();
@@ -193,23 +255,17 @@
             CurrentProfile = await _profileService.GetByUserId(currentUserId);
             if (userRole != null && userRole.Value.Contains("Admin"))
             {
-                CurrentProfile.Approval = 1;
+                currentUserIsAdmin = true;
             }
             if (CurrentProfile != null)
             {
-                if (CurrentProfile.Approval == 1)
+                if (CurrentProfile.Approval == 1 || currentUserIsAdmin)
                 {
                     var user = await _userManager.FindByIdAsync(userId);
                     SearchedProfile = await _profileService.GetByUserId(userId);
                     if (SearchedProfile != null)
                     {
-                        approvalModel = new ApprovalModel
-                            {
-                                Approval = SearchedProfile.Approval,
-                                Member = SearchedProfile.Member,
-                                ApprovalMessage = SearchedProfile.ApprovalMessage,
-                                isAdmin = user == null ? false : await _userManager.IsInRoleAsync(user, "Admin")
-                            };
+                        isAdminChecked = await _userManager.IsInRoleAsync(user, "Admin");
                         await LoadPhoto(SearchedProfile.UserId);
                     }
                 }
@@ -227,15 +283,16 @@
     {
         try
         {
-            await _profileService.AdminEdit(SearchedProfile.UserId, approvalModel);
+            loadingSubmit = true;
+            await _profileService.UserEdit(SearchedProfile.UserId, SearchedProfile);
             var user = await _userManager.FindByIdAsync(userId);
             bool isAdminOld = await _userManager.IsInRoleAsync(user, "Admin");
-            if (!approvalModel.isAdmin && isAdminOld)
+            if (!isAdminChecked && isAdminOld)
             {
                 //remove the role admin
                 await _userManager.RemoveFromRoleAsync(user, "Admin");
             }
-            else if (approvalModel.isAdmin && !isAdminOld)
+            else if (isAdminChecked && !isAdminOld)
             {
                 //add the role admin
                 await _userManager.AddToRoleAsync(user, "Admin");
@@ -246,8 +303,37 @@
         {
             EditMessageError = "Error has occured while updating the user, try later";
         }
+        loadingSubmit = false;
+        StateHasChanged();
     }
+    private void CheckedAdmin()
+    {
+        isAdminChecked = !isAdminChecked;
+    }
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        loadingSubmit = true;
+        foreach (var file in e.GetMultipleFiles(1))
+        {
+            try
+            {
+                using (var ms = new MemoryStream())
+                {
+                    await file.OpenReadStream(10000000).CopyToAsync(ms);
+                    Base64Photo = "data:image/png;base64, " + await GenerateThumbnail.GetReducedImageBase64(new FormFile(ms, 0, ms.Length,"photo","photo"));
+                    SearchedProfile.Base64Photo = Base64Photo;
+                }
 
+
+            }
+            catch (Exception ex)
+            {
+                EditMessageError = "Fail to load image";
+            }
+        }
+        loadingSubmit = false;
+
+    }
     private string MapCountry(int id)
     {
         try

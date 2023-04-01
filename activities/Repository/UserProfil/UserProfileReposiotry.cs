@@ -120,6 +120,7 @@ namespace activities.Repository.UserProfil
 
             userProfile.About = profile.About;
             userProfile.Approval = profile.Approval;
+            userProfile.ApprovalMessage = profile.ApprovalMessage;
             userProfile.Available = profile.Available;
             if (!string.IsNullOrEmpty(profile.Base64Photo))
             {
@@ -137,21 +138,6 @@ namespace activities.Repository.UserProfil
             return userProfile;
         }
 
-        public async Task<UserProfile> AdminEdit(string userId, ApprovalModel profile)
-        {
-            var userProfile = await _db.UserProfiles.Where(p => p.UserId == userId).FirstOrDefaultAsync();
-            if (userProfile == null)
-            {
-                throw new Exception("Profile not found");
-            }
-
-            userProfile.ApprovalMessage = string.IsNullOrEmpty(profile.ApprovalMessage) ? "" : profile.ApprovalMessage;
-            userProfile.Approval = profile.Approval;
-            userProfile.Member = profile.Member;
-
-            await _db.SaveChangesAsync();
-            return userProfile;
-        }
         public async Task<bool> Delete(string userId)
         {
             var userProfile = await _db.UserProfiles.FindAsync();
