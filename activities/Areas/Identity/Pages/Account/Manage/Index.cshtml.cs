@@ -132,6 +132,7 @@ namespace activities.Areas.Identity.Pages.Account.Manage
             {
                 About = Input.About,
                 Approval = 0,
+                ApprovalMessage = "",
                 Available = Input.Available,
                 Base64Photo = base64Image,
                 City = Input.City,

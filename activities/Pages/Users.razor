@@ -22,7 +22,7 @@
             <InputSelect class="form-control" ValueExpression="@(()=>searchModel.IdCountry)" Value="@searchModel.IdCountry"
                          ValueChanged="@((int value) => CountryChanged(value))">
                 <option value="0">Select a country</option>
-                @foreach (var cnt in countries.Where(x => ActiveCountries.Contains(x.Key)).OrderBy(s=>s.Value))
+                @foreach (var cnt in countries.Where(x => ActiveCountries.Contains(x.Key)).OrderBy(s => s.Value))
                 {
                     <option value="@cnt.Key">@cnt.Value</option>
                 }
@@ -56,7 +56,24 @@
         </div>
     </div>
     <div class="row mb-2">
-        <div class="col-md-6">
+        <div class="col-md-3">
+            <label class="form-label">Approval</label>
+            <InputSelect class="form-control" @bind-Value="searchModel.Approval">
+                <option value="-1">Approval state</option>
+                <option value="0">Under review</option>
+                <option value="1">Yes</option>
+                <option value="2">No</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Member</label>
+            <InputSelect class="form-control" @bind-Value="searchModel.Member">
+                <option value="-1">Memeber state</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-3">
             <label class="form-label">Results per page</label>
 
             <InputSelect class="form-control" @bind-Value="searchModel.PageSize">
@@ -65,7 +82,7 @@
                 <option value="100">100</option>
             </InputSelect>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-3">
             <br />
             <button type="submit" disabled="@(searchModel.IdLanguage==0&&searchModel.IdCountry==0&&string.IsNullOrEmpty(searchModel.City))" class="btn btn-primary">Search</button>
         </div>
@@ -83,6 +100,7 @@ else
     <table class="table">
         <thead>
             <tr>
+                <th>photo</th>
                 <th>Name</th>
                 <th>Country</th>
                 <th>City</th>
@@ -96,6 +114,12 @@ else
             @foreach (var profile in profiles)
             {
                 <tr>
+                    <td>
+                        @if (!string.IsNullOrEmpty(profile.Base64Photo))
+                        {
+                            <img class="" width="50" height="50" src="@profile.Base64Photo">
+                        }
+                    </td>
                     <td> <a target="_blank" href="Profile/@profile.UserId"> @profile.Name </a> </td>
                     <td>@MapCountry(profile.IdCountry)</td>
                     <td>@profile.City</td>
@@ -131,7 +155,9 @@ else
             IdCountry = 0,
             IdLanguage = 0,
             City = "",
-            PageSize = 25
+            PageSize = 25,
+            Approval = -1,
+            Member = -1
         };
 
     private UserProfile[]? profiles = new UserProfile[] { };

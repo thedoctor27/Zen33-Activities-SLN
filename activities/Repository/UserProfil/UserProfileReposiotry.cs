@@ -35,13 +35,13 @@ namespace activities.Repository.UserProfil
             try
             {
                 var photo = await _db.UserProfiles.Select(s => new { id = s.UserId, photo = s.Base64Photo }).Where(p => p.id == userId).FirstOrDefaultAsync();
-                if(photo == null)
+                if (photo == null)
                 {
                     return "NULL";
                 }
                 return string.IsNullOrEmpty(photo.photo) ? "NULL" : photo.photo;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return "NULL";
             }
@@ -72,6 +72,8 @@ namespace activities.Repository.UserProfil
                  (model.IdCountry == 0 ? true : p.IdCountry == model.IdCountry) &&
                  (model.IdActivity == 0 ? true : p.IdActivity == model.IdActivity) &&
                  (model.IdLanguage == 0 ? true : p.IdLanguage == model.IdLanguage) &&
+                 (model.Approval == -1 ? true : p.Approval == model.Approval) &&
+                 (model.Member == -1 ? true : p.Member == model.Member) &&
                  (string.IsNullOrEmpty(model.City) ? true : p.City.ToLower().Contains(model.City.ToLower()))
              ).CountAsync();
         }
@@ -92,11 +94,14 @@ namespace activities.Repository.UserProfil
                     IdCountry = s.IdCountry,
                     IdLanguage = s.IdLanguage,
                     Member = s.Member,
+                    Base64Photo = s.Base64Photo,
                 })
                 .Where(p =>
                     (model.IdCountry == 0 ? true : p.IdCountry == model.IdCountry) &&
                     (model.IdActivity == 0 ? true : p.IdActivity == model.IdActivity) &&
                     (model.IdLanguage == 0 ? true : p.IdLanguage == model.IdLanguage) &&
+                    (model.Approval == -1 ? true : p.Approval == model.Approval) &&
+                    (model.Member == -1 ? true : p.Member == model.Member) &&
                     (string.IsNullOrEmpty(model.City) ? true : p.City.ToLower().Contains(model.City.ToLower()))
                 )
                 .Skip((pageNumber - 1) * model.PageSize)
@@ -120,13 +125,16 @@ namespace activities.Repository.UserProfil
 
             userProfile.About = profile.About;
             userProfile.Approval = profile.Approval;
-            userProfile.ApprovalMessage = profile.ApprovalMessage;
+
             userProfile.Available = profile.Available;
             if (!string.IsNullOrEmpty(profile.Base64Photo))
             {
                 userProfile.Base64Photo = profile.Base64Photo;
             }
-
+            if (!string.IsNullOrEmpty(profile.ApprovalMessage))
+            {
+                userProfile.ApprovalMessage = profile.ApprovalMessage;
+            }
             userProfile.City = profile.City;
             userProfile.IdActivity = profile.IdActivity;
             userProfile.IdCountry = profile.IdCountry;

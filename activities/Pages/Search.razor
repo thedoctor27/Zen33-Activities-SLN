@@ -83,6 +83,7 @@ else
     <table class="table">
         <thead>
             <tr>
+                <th>photo</th>
                 <th>Name</th>
                 <th>Country</th>
                 <th>City</th>
@@ -94,6 +95,12 @@ else
             @foreach (var profile in profiles)
             {
                 <tr>
+                    <td>
+                        @if (!string.IsNullOrEmpty(profile.Base64Photo))
+                        {
+                            <img class="" width="50" height="50" src="@profile.Base64Photo">
+                        }
+                    </td>
                     <td> <a  href="Profile/@profile.UserId"> @profile.Name </a> </td>
                     <td>@MapCountry(profile.IdCountry)</td>
                     <td>@profile.City</td>
