@@ -152,7 +152,6 @@
                     }
                     else
                     {
-
                     <div class="col-md-7">
                         <div class="card">
                             <div class="card-body">
@@ -182,25 +181,28 @@
                     break;
                     }
                     }
-
-                    <div class="col-md-5 text-center">
-                        @if (string.IsNullOrEmpty(Base64Photo) && (currentUserIsAdmin || CurrentProfile.Approval == 1))
-                        {
-                            <p>Loading user photo ...</p>
-                        }
-                        else
-                        {
-                            @if (Base64Photo == "NULL")
+                    @if ((currentUserIsAdmin || CurrentProfile.Approval == 1))
+                    {
+                        <div class="col-md-5 text-center">
+                            @if (string.IsNullOrEmpty(Base64Photo))
                             {
-                                <p class="text-center">No photo found</p>
+                                <p>Loading user photo ...</p>
                             }
                             else
                             {
-                                <img class="" width="200" height="200" src="@Base64Photo">
+                                @if (Base64Photo == "NULL")
+                                {
+                                    <p class="text-center">No photo found</p>
+                                }
+                                else
+                                {
+                                    <img class="" width="200" height="200" src="@Base64Photo">
 
+                                }
                             }
-                        }
-                    </div>
+                        </div>
+                    }
+
                 </div>
             }
         }
