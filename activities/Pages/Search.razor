@@ -124,18 +124,6 @@ else
     </nav>
 }
 
-@if (Env.IsDevelopment())
-{
-    <div class="row">
-        <div class="col-md-12">
-            <div class="alert alert-danger">
-                <b>Seeding DATA</b>
-                <a class="nav-link text-dark" id="register" asp-area="Identity" href="/Identity/Account/Seed">Seeding data</a>
-            </div>
-        </div>
-    </div>
-}
-
 @code {
     private int TotalSearchResults = 0;
     private int currentPage = 1;
@@ -145,7 +133,9 @@ else
             IdCountry = 0,
             IdLanguage = 0,
             City = "",
-            PageSize = 25
+            PageSize = 25,
+            Approval = -1,
+            Member = -1
         };
 
     private UserProfile[]? profiles = new UserProfile[] { };
