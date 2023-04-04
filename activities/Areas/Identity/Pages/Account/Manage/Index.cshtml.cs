@@ -102,6 +102,7 @@ namespace activities.Areas.Identity.Pages.Account.Manage
                     IdLanguage = profile.IdLanguage,
                     Member = profile.Member == 1 ? "Yes" : "No",
                     Name = profile.Name,
+                    Other = profile.Other,
                     ApprovalMessage = profile.Approval == 2 ? profile.ApprovalMessage : ""
                 };
             }
@@ -139,7 +140,9 @@ namespace activities.Areas.Identity.Pages.Account.Manage
                 IdActivity = Input.IdActivity,
                 IdCountry = Input.IdCountry,
                 IdLanguage = Input.IdLanguage,
-                Name = Input.Name
+                Name = Input.Name,
+                Member = Input.Member == "No" ? 0 : 1, 
+                Other = Input.Member=="No" ? "" : Input.Other
             };
         }
         public async Task<IActionResult> OnPostAsync()

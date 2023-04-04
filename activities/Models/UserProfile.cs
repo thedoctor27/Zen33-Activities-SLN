@@ -16,6 +16,9 @@ namespace activities.Models
         [MaxLength(2000)]
         public string About { get; set; }
 
+        [MaxLength(65)]
+        public string Other { get; set; }
+
         [AllowNull]
         public string Base64Photo { get; set; }
 

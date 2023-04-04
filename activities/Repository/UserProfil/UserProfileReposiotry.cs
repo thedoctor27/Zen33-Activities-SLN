@@ -63,6 +63,7 @@ namespace activities.Repository.UserProfil
                 IdCountry = s.IdCountry,
                 IdLanguage = s.IdLanguage,
                 Member = s.Member,
+                Other = s.Other
             }).Where(p => p.UserId == userId).FirstOrDefaultAsync();
         }
 
@@ -84,7 +85,6 @@ namespace activities.Repository.UserProfil
                 {
                     UserId = s.UserId,
                     Name = s.Name,
-                    About = s.About,
                     Approval = s.Approval,
                     ApprovalMessage = s.ApprovalMessage,
                     Available = s.Available,
@@ -125,7 +125,7 @@ namespace activities.Repository.UserProfil
 
             userProfile.About = profile.About;
             userProfile.Approval = profile.Approval;
-
+            userProfile.Other = profile.Other;
             userProfile.Available = profile.Available;
             if (!string.IsNullOrEmpty(profile.Base64Photo))
             {

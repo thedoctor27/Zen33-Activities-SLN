@@ -33,6 +33,9 @@ namespace activities.Models
         [StringLength(2000, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 40)]
         public string About { get; set; }
         [Required]
+        [StringLength(65, ErrorMessage = "The {0} must be at least {2} characters long.")]
+        public string Other { get; set; }
+        [Required]
         public int IdActivity { get; set; }
         [Required]
         public int IdCountry { get; set; }

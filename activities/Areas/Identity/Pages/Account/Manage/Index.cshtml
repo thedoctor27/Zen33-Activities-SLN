@@ -119,7 +119,7 @@
                         @if (Model.Input.Approval == "No")
                         {
                             <br />
-                             <span>Approvail message : </span>
+                            <span>Approvail message : </span>
                             <span class="text-danger">@Model.Input.ApprovalMessage</span>
                         }
                     </div>
@@ -131,6 +131,17 @@
                         Member : <b>@Model.Input.Member</b>
                     </div>
                 </div>
+                @if (Model.Input.Member == "Yes")
+                {
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <textarea asp-for="Input.Other" class="form-control" style="height:100px" autocomplete="Other" aria-required="true" placeholder="Other"></textarea>
+                            <label asp-for="Input.Other">Other</label>
+                            <span asp-validation-for="Input.Other" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                }
             </div>
             <button type="submit" class="btn btn-primary">Update profile</button>
 
