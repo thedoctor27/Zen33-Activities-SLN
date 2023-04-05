@@ -75,6 +75,7 @@ namespace activities.Repository.UserProfil
                  (model.IdLanguage == 0 ? true : p.IdLanguage == model.IdLanguage) &&
                  (model.Approval == -1 ? true : p.Approval == model.Approval) &&
                  (model.Member == -1 ? true : p.Member == model.Member) &&
+                 (model.Available == -1 ? true : p.Available == (model.Available == 1)) &&
                  (string.IsNullOrEmpty(model.City) ? true : p.City.ToLower().Contains(model.City.ToLower()))
              ).CountAsync();
         }
@@ -102,6 +103,7 @@ namespace activities.Repository.UserProfil
                     (model.IdLanguage == 0 ? true : p.IdLanguage == model.IdLanguage) &&
                     (model.Approval == -1 ? true : p.Approval == model.Approval) &&
                     (model.Member == -1 ? true : p.Member == model.Member) &&
+                    (model.Available == -1 ? true : p.Available == (model.Available == 1)) &&
                     (string.IsNullOrEmpty(model.City) ? true : p.City.ToLower().Contains(model.City.ToLower()))
                 )
                 .Skip((pageNumber - 1) * model.PageSize)

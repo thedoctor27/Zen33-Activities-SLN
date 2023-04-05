@@ -9,5 +9,6 @@
         public int PageSize { get; set; }
         public int Approval { get; set; }
         public int Member { get; set; }
+        public int Available { get; set; }
     }
 }

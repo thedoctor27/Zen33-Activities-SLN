@@ -57,6 +57,15 @@
     </div>
     <div class="row mb-2">
         <div class="col-md-6">
+            <label class="form-label">Available</label>
+
+            <InputSelect class="form-control" @bind-Value="searchModel.Available">
+                <option value="-1">Available state</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
             <label class="form-label">Results per page</label>
 
             <InputSelect class="form-control" @bind-Value="searchModel.PageSize">
@@ -65,7 +74,8 @@
                 <option value="100">100</option>
             </InputSelect>
         </div>
-        <div class="col-md-6">
+
+        <div class="col-md-4">
             <br />
             <button type="submit" disabled="@(searchModel.IdLanguage==0&&searchModel.IdCountry==0&&string.IsNullOrEmpty(searchModel.City))" class="btn btn-primary">Search</button>
         </div>
@@ -141,7 +151,8 @@ else
             City = "",
             PageSize = 25,
             Approval = -1,// set this to 1 and it will display only approved users ( -1 : all users)
-            Member = -1
+            Member = -1,
+            Available =-1
         };
 
     private UserProfile[]? profiles = new UserProfile[] { };
@@ -181,11 +192,13 @@ else
     }
     private async Task SubmitNewSearch()
     {
-        TotalSearchResults = await _profileService.CountSearchProfiles(searchModel);
-        currentPage = 1;
-        StateHasChanged();
-        await SearchAction();
-
+        if (searchModel.IdLanguage != 0 || searchModel.IdCountry != 0 || !string.IsNullOrEmpty(searchModel.City))
+        {
+            TotalSearchResults = await _profileService.CountSearchProfiles(searchModel);
+            currentPage = 1;
+            StateHasChanged();
+            await SearchAction();
+        }
     }
     private async Task SearchAction()
     {
