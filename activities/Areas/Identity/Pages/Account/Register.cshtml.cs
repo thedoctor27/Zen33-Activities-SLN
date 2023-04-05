@@ -147,7 +147,8 @@ namespace activities.Areas.Identity.Pages.Account
                         ApprovalMessage = "",
                         City = "",
                         Name = "",
-                        Base64Photo = ""
+                        Base64Photo = "",
+                        Other = ""
                     };
 
                     try

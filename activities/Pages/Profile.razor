@@ -87,10 +87,6 @@
                                             <InputTextArea style="height:100px"  class="form-control" @bind-Value="SearchedProfile.About"></InputTextArea>
                                         </div>
                                         <div class="form-group">
-                                            <label class="form-label">Other</label>
-                                            <InputTextArea style="height:100px" disabled="@(SearchedProfile.Member==0)" class="form-control" @bind-Value="SearchedProfile.Other"></InputTextArea>
-                                        </div>
-                                        <div class="form-group">
                                             <label class="form-label">Photo</label>
                                             <InputFile accept=".png,.jpeg,.jpg" OnChange="@LoadFiles" class="form-control"></InputFile>
                                         </div>
@@ -115,6 +111,10 @@
 
                                         </li>
                                         <li class="list-group-item">
+                                            <label class="form-label">Approval message</label>
+                                            <InputText class="form-control" disabled="@(SearchedProfile.Approval!=2)" @bind-Value="SearchedProfile.ApprovalMessage"></InputText>
+                                        </li>
+                                        <li class="list-group-item">
                                             <label class="form-label">Member</label>
                                             <InputRadioGroup @bind-Value="SearchedProfile.Member">
                                                 <br>
@@ -123,8 +123,8 @@
                                             </InputRadioGroup>
                                         </li>
                                         <li class="list-group-item">
-                                            <label class="form-label">Approval message</label>
-                                            <InputText class="form-control" disabled="@(SearchedProfile.Approval!=2)" @bind-Value="SearchedProfile.ApprovalMessage"></InputText>
+                                            <label class="form-label">Other</label>
+                                            <InputTextArea style="height:100px" disabled="@(SearchedProfile.Member==0)" class="form-control" @bind-Value="SearchedProfile.Other"></InputTextArea>
                                         </li>
                                         <li class="list-group-item">
                                             <p class="text-center text-success">@EditMessageSuccess</p>
@@ -168,8 +168,8 @@
                                             </div>
                                             <ul class="list-group list-group-flush">
                                                 <li class="list-group-item">
-                                                    User state : <b>
-                                                        @(SearchedProfile.Available == true ? "Available" : "Not available")
+                                                   Available : <b>
+                                                        @(SearchedProfile.Available == true ? "Yes" : "No")
                                                     </b>
                                                 </li>
                                                 <li class="list-group-item">Country : <b>@MapCountry(SearchedProfile.IdCountry)</b></li>

@@ -89,6 +89,7 @@ else
                 <th>City</th>
                 <th>Language</th>
                 <th>Activity</th>
+                <th>Available</th>
             </tr>
         </thead>
         <tbody>
@@ -100,12 +101,17 @@ else
                         {
                             <img class="" width="50" height="50" src="@profile.Base64Photo">
                         }
+                        else
+                        {
+                            <small>No photo</small>
+                        }
                     </td>
-                    <td> <a  href="Profile/@profile.UserId"> @profile.Name </a> </td>
+                    <td> <a target="_blank" href="Profile/@profile.UserId"> @profile.Name </a> </td>
                     <td>@MapCountry(profile.IdCountry)</td>
                     <td>@profile.City</td>
                     <td>@MapLanguage(profile.IdLanguage)</td>
                     <td>@MapActivity(profile.IdActivity)</td>
+                    <td> @(profile.Available == true ? "Yes" : "No")</td>
                 </tr>
             }
         </tbody>
@@ -149,7 +155,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-       
+
 
         countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
 

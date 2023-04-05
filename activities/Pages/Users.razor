@@ -106,6 +106,7 @@ else
                 <th>City</th>
                 <th>Language</th>
                 <th>Activity</th>
+                <th>Available</th>
                 <th>Approval</th>
                 <th>Member</th>
             </tr>
@@ -119,12 +120,17 @@ else
                         {
                             <img class="" width="50" height="50" src="@profile.Base64Photo">
                         }
+                        else
+                        {
+                            <small>No photo</small>
+                        }
                     </td>
                     <td> <a target="_blank" href="Profile/@profile.UserId"> @profile.Name </a> </td>
                     <td>@MapCountry(profile.IdCountry)</td>
                     <td>@profile.City</td>
                     <td>@MapLanguage(profile.IdLanguage)</td>
                     <td>@MapActivity(profile.IdActivity)</td>
+                    <td> @(profile.Available == true ? "Yes" : "No")</td>
                     <td>@(profile.Approval == 0 ? "Under Review" : profile.Approval == 1 ? "Yes" : "No")</td>
                     <td>@(profile.Member == 1 ? "Yes" : "No")</td>
                 </tr>

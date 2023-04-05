@@ -118,7 +118,8 @@ namespace activities.Areas.Identity.Pages.Account
                         IdCountry = CountriesIDs[random.Next(0, countries.Length - 1)],
                         IdLanguage = LanguagesIDs[random.Next(0, languages.Length - 1)],                      
                         Member = 0,
-                        Name = "test_"+ (currentUsers + i)
+                        Name = "test_"+ (currentUsers + i),
+                        Other=""
                     });
                 }
             }

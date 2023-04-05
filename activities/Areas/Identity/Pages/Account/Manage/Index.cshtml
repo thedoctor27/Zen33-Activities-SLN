@@ -148,7 +148,7 @@
         </form>
     </div>
     <div class="col-md-4">
-        @if (!string.IsNullOrEmpty(Model.Input.Base64Photo))
+        @if (Model.Input.Base64Photo != "NULL")
         {
             <img width="150" height="150" src="@Model.Input.Base64Photo" />
         }
