@@ -166,6 +166,8 @@ namespace activities.Areas.Identity.Pages.Account
                                 await _roleManager.CreateAsync(role);
                             }
                             await _userManager.AddToRoleAsync(user, "Admin");
+                            string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                            await _userManager.ConfirmEmailAsync(user,token);
                         }
                         await _userProfile.Add(profile);
                     }
@@ -174,12 +176,7 @@ namespace activities.Areas.Identity.Pages.Account
                         profile = null;
                         ModelState.AddModelError(string.Empty, ex.Message);
                     }
-                    if (profile != null)
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
-                    else
+                    if (profile == null)
                     {
                         await _userManager.DeleteAsync(user);
                     }

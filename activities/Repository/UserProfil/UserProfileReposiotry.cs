@@ -1,8 +1,10 @@
 ﻿using activities.Data;
 using activities.Models;
+using Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace activities.Repository.UserProfil
 {
@@ -13,6 +15,58 @@ namespace activities.Repository.UserProfil
         public UserProfileReposiotry(ApplicationDbContext db)
         {
             _db = db;
+        }
+        private string MapRessource(int id,Dictionary<string, string> ressources)
+        {
+            try
+            {
+                return ressources[id.ToString()];
+            }
+            catch
+            {
+                return "NotFound_" + id;
+            }
+        }
+        public async Task<IEnumerable<StatsModel>> GetStats(string GroupBy, Dictionary<string, string> ressources)
+        {
+            ;
+            switch (GroupBy)
+            {
+                case "Country":
+                    var statsCountries =await _db.UserProfiles.GroupBy(x => x.IdCountry).Select(s => new StatsModel
+                    {
+                        id = s.Key, 
+                        total = s.Count(), 
+                        review = s.Where(x => x.Approval == 0).Count(),
+                        approved = s.Where(x => x.Approval == 1).Count(), 
+                        notapproved = s.Where(x => x.Approval == 2).Count(), 
+                        member = s.Where(x => x.Member == 1).Count(), 
+                        available = s.Where(x => x.Available).Count()
+                    }).ToListAsync(); 
+                    foreach(var s in statsCountries)
+                    {
+                        s.name = MapRessource(s.id, ressources);
+                    }
+                    return statsCountries.OrderBy(o=>o.name);
+                case "Language":
+                    var statsLanguges =await _db.UserProfiles.GroupBy(x => x.IdLanguage).Select(s => new StatsModel
+                    {
+                        id = s.Key,
+                        total = s.Count(),
+                        review = s.Where(x => x.Approval == 0).Count(),
+                        approved = s.Where(x => x.Approval == 1).Count(),
+                        notapproved = s.Where(x => x.Approval == 2).Count(),
+                        member = s.Where(x => x.Member == 1).Count(),
+                        available = s.Where(x => x.Available).Count()
+                    }).ToListAsync();
+                    foreach (var s in statsLanguges)
+                    {
+                        s.name = MapRessource(s.id, ressources);
+                    }
+                    return statsLanguges.OrderBy(o => o.name); ;
+                default:
+                    return new List<StatsModel>();
+            }
         }
         public async Task<int[]> GetProfilesActivites()
         {
@@ -66,7 +120,6 @@ namespace activities.Repository.UserProfil
                 Other = s.Other
             }).Where(p => p.UserId == userId).FirstOrDefaultAsync();
         }
-
         public async Task<int> CountSearchProfiles(SearchModel model)
         {
             return await _db.UserProfiles.Where(p =>
@@ -110,7 +163,6 @@ namespace activities.Repository.UserProfil
                 .Take(model.PageSize)
                 .OrderBy(o => o.Name).ToArrayAsync();
         }
-
         public async Task<UserProfile> Add(UserProfile profile)
         {
             _db.UserProfiles.Add(profile);
@@ -147,7 +199,6 @@ namespace activities.Repository.UserProfil
             await _db.SaveChangesAsync();
             return userProfile;
         }
-
         public async Task<bool> Delete(string userId)
         {
             var userProfile = await _db.UserProfiles.FindAsync();

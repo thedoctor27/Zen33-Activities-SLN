@@ -1,11 +1,123 @@
 ﻿@page "/"
-
-@using System.Globalization;
+@using activities.Models;
+@using activities.Repository.UserProfil;
+@inject IUserProfileReposiotry _profileService;
+@using Microsoft.Extensions.Localization;
+@using activities.Resources;
+@inject IStringLocalizer<Countries> CountriesLocalizer
+@inject IStringLocalizer<Languages> LanguagesLocalizer
 
 <h1>Welcome</h1>
-<p>
-    <b>CurrentCulture</b>: @CultureInfo.CurrentCulture
-</p>
-@code {
 
+
+<AuthorizeView Roles="Admin">
+    @if (stats == null)
+    {
+        <p>Loading ...</p>
+    }
+    else
+    {
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link @((GroupName == "Country") ? "active" : "")" @onclick='() => SetActiveTab("Country")' href="javascript:void(0)">Countries</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @((GroupName == "Language") ? "active" : "")" @onclick='() => SetActiveTab("Language")' href="javascript:void(0)">Languages</a>
+            </li>
+        </ul>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th> @GroupName <a class="  btn btn-xs @((SortField == "Name") ? " btn-primary" : "btn-secondary")" @onclick='() => SortBy("Name")'> <i class="oi oi-sort-ascending"></i> </a> </th>
+                    <th> Total <a class="   btn btn-xs @((SortField == "Total") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Total")'> <i class="oi oi-sort-descending"></i> </a>  </th>
+                    <th> Review <a class="   btn btn-xs @((SortField == "Review") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Review")'> <i class="oi oi-sort-descending"></i> </a>  </th>
+                    <th> Approved <a class="   btn btn-xs @((SortField == "Approved") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Approved")'> <i class="oi oi-sort-descending"></i>  </a></th>
+
+                    <th> Not Approved <a class="   btn btn-xs @((SortField == "Not Approved") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Not Approved")'><i class="oi oi-sort-descending"></i> </a>  </th>
+
+                    <th> Member <a class="   btn btn-xs @((SortField == "Member") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Member")'> <i class="oi oi-sort-descending"></i> </a> </th>
+
+                    <th> Available <a class="   btn btn-xs @((SortField == "Available") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Available")'> <i class="oi oi-sort-descending"></i> </a> </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in stats)
+                {
+                    <tr>
+                        <td>@s.name</td>
+                        <td>@s.total</td>
+                        <td>@s.review</td>
+                        <td>@s.approved</td>
+                        <td>@s.notapproved</td>
+                        <td>@s.member</td>
+                        <td>@s.available</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+
+</AuthorizeView>
+
+
+@code {
+    private string GroupName;
+    private string SortField;
+    private IEnumerable<StatsModel>? stats;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SetActiveTab("Country");
+    }
+
+    public async Task SetActiveTab(string groupBy)
+    {
+        stats = null;
+        GroupName = groupBy;
+        SortField = "Name";
+        Dictionary<string, string> ressources = new Dictionary<string, string>();
+        switch (groupBy)
+        {
+            case "Country":
+                ressources = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+                break;
+            case "Language":
+                ressources = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+                break;
+            default: break;
+        }
+        stats = await _profileService.GetStats(groupBy, ressources);
+
+    }
+    public async Task SortBy(string field)
+    {
+        SortField = field;
+        switch (field)
+        {
+            case "Name":
+                stats = stats.OrderBy(o => o.name);
+                break;
+            case"Total":
+                stats = stats.OrderByDescending(o => o.total);
+                break;
+            case"Review":
+                stats = stats.OrderByDescending(o => o.review);
+                break;
+            case"Approved":
+                stats = stats.OrderByDescending(o => o.approved);
+                break;
+            case"Not Approved":
+                stats = stats.OrderByDescending(o => o.notapproved);
+                break;
+            case"Member":
+                stats = stats.OrderByDescending(o => o.member);
+                break;
+            case"Available":
+                stats = stats.OrderByDescending(o => o.available);
+                break;
+        }
+    }
 }

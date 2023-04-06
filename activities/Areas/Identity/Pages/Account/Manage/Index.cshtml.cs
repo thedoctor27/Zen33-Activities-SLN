@@ -142,7 +142,7 @@ namespace activities.Areas.Identity.Pages.Account.Manage
                 IdLanguage = Input.IdLanguage,
                 Name = Input.Name,
                 Member = Input.Member == "No" ? 0 : 1, 
-                Other = Input.Other
+                Other = string.IsNullOrEmpty(Input.Other)? "" : Input.Other,
             };
         }
         public async Task<IActionResult> OnPostAsync()

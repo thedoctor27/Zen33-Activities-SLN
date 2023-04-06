@@ -101,9 +101,12 @@ namespace activities.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, "test_"+(currentUsers+i)+"@test.com", CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, "test_" + (currentUsers + i) + "@test.com", CancellationToken.None);
+      
                 var result = await _userManager.CreateAsync(user, "Test@123");
                 if (result.Succeeded)
                 {
+                    string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    await _userManager.ConfirmEmailAsync(user, token);
                     var userId = await _userManager.GetUserIdAsync(user);
                     await _profileRepository.Add(new UserProfile
                     {
