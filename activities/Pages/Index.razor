@@ -7,59 +7,62 @@
 @inject IStringLocalizer<Countries> CountriesLocalizer
 @inject IStringLocalizer<Languages> LanguagesLocalizer
 
-<h1>Welcome</h1>
+<MudContainer  Width="100%" MaxWidth="MaxWidth.ExtraExtraLarge">
+    <h1>Welcome</h1>
 
+    <AuthorizeView Roles="Admin">
+        @if (stats == null)
+        {
+            <p>Loading ...</p>
+        }
+        else
+        {
 
-<AuthorizeView Roles="Admin">
-    @if (stats == null)
-    {
-        <p>Loading ...</p>
-    }
-    else
-    {
-        <ul class="nav nav-pills">
-            <li class="nav-item">
-                <a class="nav-link @((GroupName == "Country") ? "active" : "")" @onclick='() => SetActiveTab("Country")' href="javascript:void(0)">Countries</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link @((GroupName == "Language") ? "active" : "")" @onclick='() => SetActiveTab("Language")' href="javascript:void(0)">Languages</a>
-            </li>
-        </ul>
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link @((GroupName == "Country") ? "active" : "")" @onclick='() => SetActiveTab("Country")' href="javascript:void(0)">Countries</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @((GroupName == "Language") ? "active" : "")" @onclick='() => SetActiveTab("Language")' href="javascript:void(0)">Languages</a>
+                </li>
+            </ul>
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th> @GroupName <a class="  btn btn-xs @((SortField == "Name") ? " btn-primary" : "btn-secondary")" @onclick='() => SortBy("Name")'> <i class="oi oi-sort-ascending"></i> </a> </th>
-                    <th> Total <a class="   btn btn-xs @((SortField == "Total") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Total")'> <i class="oi oi-sort-descending"></i> </a>  </th>
-                    <th> Review <a class="   btn btn-xs @((SortField == "Review") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Review")'> <i class="oi oi-sort-descending"></i> </a>  </th>
-                    <th> Approved <a class="   btn btn-xs @((SortField == "Approved") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Approved")'> <i class="oi oi-sort-descending"></i>  </a></th>
-
-                    <th> Not Approved <a class="   btn btn-xs @((SortField == "Not Approved") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Not Approved")'><i class="oi oi-sort-descending"></i> </a>  </th>
-
-                    <th> Member <a class="   btn btn-xs @((SortField == "Member") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Member")'> <i class="oi oi-sort-descending"></i> </a> </th>
-
-                    <th> Available <a class="   btn btn-xs @((SortField == "Available") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Available")'> <i class="oi oi-sort-descending"></i> </a> </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var s in stats)
-                {
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>@s.name</td>
-                        <td>@s.total</td>
-                        <td>@s.review</td>
-                        <td>@s.approved</td>
-                        <td>@s.notapproved</td>
-                        <td>@s.member</td>
-                        <td>@s.available</td>
+                        <th> @GroupName <a class="  btn btn-xs @((SortField == "Name") ? " btn-primary" : "btn-secondary")" @onclick='() => SortBy("Name")'> <i class="oi oi-sort-ascending"></i> </a> </th>
+                        <th> Total <a class="   btn btn-xs @((SortField == "Total") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Total")'> <i class="oi oi-sort-descending"></i> </a>  </th>
+                        <th> Review <a class="   btn btn-xs @((SortField == "Review") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Review")'> <i class="oi oi-sort-descending"></i> </a>  </th>
+                        <th> Approved <a class="   btn btn-xs @((SortField == "Approved") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Approved")'> <i class="oi oi-sort-descending"></i>  </a></th>
+
+                        <th> Not Approved <a class="   btn btn-xs @((SortField == "Not Approved") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Not Approved")'><i class="oi oi-sort-descending"></i> </a>  </th>
+
+                        <th> Member <a class="   btn btn-xs @((SortField == "Member") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Member")'> <i class="oi oi-sort-descending"></i> </a> </th>
+
+                        <th> Available <a class="   btn btn-xs @((SortField == "Available") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Available")'> <i class="oi oi-sort-descending"></i> </a> </th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
+                </thead>
+                <tbody>
+                    @foreach (var s in stats)
+                    {
+                        <tr>
+                            <td>@s.name</td>
+                            <td>@s.total</td>
+                            <td>@s.review</td>
+                            <td>@s.approved</td>
+                            <td>@s.notapproved</td>
+                            <td>@s.member</td>
+                            <td>@s.available</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
 
 
-</AuthorizeView>
+    </AuthorizeView>
+</MudContainer>
+
 
 
 @code {

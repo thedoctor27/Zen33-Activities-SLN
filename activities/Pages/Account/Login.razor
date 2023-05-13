@@ -1,0 +1,46 @@
+﻿@page "/Account/Login"
+@using activities.Models;
+@inject TokenProvider tokenProvider
+
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <h1>Mudblazor login</h1>
+    <MudGrid Class="mt-2">
+        <MudItem xs="6">
+            <MudItem xs="12">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                    <form id="account" method="post" action="Identity/Account/Login">
+                        <h2>Use a local account to log in.</h2>
+                        <hr />
+                        <input name="__RequestVerificationToken" type="hidden" value="@tokenProvider.AntiforgeryToken">
+                        <div class="form-floating">
+                            <MudTextField T="string" InputType="InputType.Email" name="Input.Email" Label="Email" Variant="Variant.Text"></MudTextField>
+                        </div>
+                        <div class="form-floating">
+                            <MudTextField T="string" InputType="InputType.Password" name="Input.Password" Label="Password" Variant="Variant.Text"></MudTextField>
+                        </div>
+                        <div>
+                            <MudCheckBox T="bool" name="Input.RememberMe" Label="Remember Me" Color="Color.Primary"></MudCheckBox>
+                        </div>
+                        <div>
+                            <MudButton ButtonType="ButtonType.Submit"  Variant="Variant.Filled" Color="Color.Primary">Login</MudButton>
+                        </div>
+                    </form>
+                </MudPaper>
+            </MudItem>
+
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+
+
+@code {
+
+    [Parameter]
+    public string ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+}

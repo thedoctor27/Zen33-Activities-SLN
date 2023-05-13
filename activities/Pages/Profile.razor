@@ -15,212 +15,284 @@
 @inject IStringLocalizer<Countries> CountriesLocalizer
 @inject IStringLocalizer<Languages> LanguagesLocalizer
 @inject UserManager<IdentityUser> _userManager;
-<h3>User profile</h3>
-<AuthorizeView>
-    <Authorized>
 
-        @if (string.IsNullOrEmpty(currentUserId))
-        {
-            <p>Loading ...</p>
-        }
-        else
-        {
-            if (CurrentProfile == null)
-            {
-                <p>Loading current profile settings ...</p>
-            }
-            else
-            {
-                <div class="row">
-                    @if (currentUserIsAdmin)
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid Class="mt-2">
+        <AuthorizeView>
+            <Authorized>
+
+                @if (string.IsNullOrEmpty(currentUserId))
+                {
+                    <MudItem xs="12">
+                        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                            <p>Loading ...</p>
+                        </MudPaper>
+                    </MudItem>
+                }
+                else
+                {
+                    if (CurrentProfile == null)
                     {
-                        <div class="col-md-7">
-                            <EditForm Context="adminForm" Model="@SearchedProfile" OnSubmit="(()=>SubmitEdit())">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><b> Edit profile state </b></h5>
-                                        <div class="form-group">
-                                            <label class="form-label">Name</label>
-                                            <InputText class="form-control" @bind-Value="SearchedProfile.Name"></InputText>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Email</label>
-                                            <InputText class="form-control" disabled="true" @bind-Value="SearchedUserEmail"></InputText>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Country</label>
-                                            <InputSelect class="form-control" @bind-Value="@SearchedProfile.IdCountry">
-                                                <option value="0">Select a country</option>
-                                                @foreach (var cnt in countries.OrderBy(s => s.Value))
-                                                {
-                                                    <option value="@cnt.Key">@cnt.Value</option>
-                                                }
-                                            </InputSelect>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">City</label>
-                                            <InputText class="form-control" @bind-Value="SearchedProfile.City"></InputText>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Language</label>
-                                            <InputSelect class="form-control" @bind-Value="@SearchedProfile.IdLanguage">
-                                                <option value="0">Select a language</option>
-                                                @foreach (var cnt in languages.OrderBy(s => s.Value))
-                                                {
-                                                    <option value="@cnt.Key">@cnt.Value</option>
-                                                }
-                                            </InputSelect>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Activity</label>
-                                            <InputSelect class="form-control" @bind-Value="@SearchedProfile.IdActivity">
-                                                <option value="0">Select an activity</option>
-                                                @foreach (var cnt in activities.OrderBy(s => s.Value))
-                                                {
-                                                    <option value="@cnt.Key">@cnt.Value</option>
-                                                }
-                                            </InputSelect>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label class="form-label">About</label>
-                                            <InputTextArea style="height:100px"  class="form-control" @bind-Value="SearchedProfile.About"></InputTextArea>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Photo</label>
-                                            <InputFile accept=".png,.jpeg,.jpg" OnChange="@LoadFiles" class="form-control"></InputFile>
-                                        </div>
-                                        <div class="form-group">
-                                            <InputCheckbox @bind-Value="SearchedProfile.Available"></InputCheckbox> Available
-                                        </div>
-                                    </div>
-
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item">
-                                            <label class="form-label">Admin role</label> <br>
-                                            <InputCheckbox @bind-Value="isAdminChecked"></InputCheckbox> User Has ADMIN ROLE
-                                        </li>
-                                        <li class="list-group-item">
-                                            <label class="form-label">Approval</label>
-                                            <InputRadioGroup @bind-Value="SearchedProfile.Approval">
-                                                <br>
-                                                <InputRadio Value="0" />Under Review <br>
-                                                <InputRadio Value="1" />Yes      <br>
-                                                <InputRadio Value="2" />No
-                                            </InputRadioGroup>
-
-                                        </li>
-                                        <li class="list-group-item">
-                                            <label class="form-label">Approval message</label>
-                                            <InputText class="form-control" disabled="@(SearchedProfile.Approval!=2)" @bind-Value="SearchedProfile.ApprovalMessage"></InputText>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <label class="form-label">Member</label>
-                                            <InputRadioGroup @bind-Value="SearchedProfile.Member">
-                                                <br>
-                                                <InputRadio Value="1" />Yes <br />
-                                                <InputRadio Value="0" />No
-                                            </InputRadioGroup>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <label class="form-label">Other</label>
-                                            <InputTextArea style="height:100px" disabled="@(SearchedProfile.Member==0)" class="form-control" @bind-Value="SearchedProfile.Other"></InputTextArea>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <p class="text-center text-success">@EditMessageSuccess</p>
-                                            <p class="text-center text-danger">@EditMessageError</p>
-                                        </li>
-                                    </ul>
-                                    <div class="card-footer">
-                                        <button type="submit" disabled="@loadingSubmit" class="btn btn-primary">Submit</button>
-                                    </div>
-                                </div>
-
-                            </EditForm>
-
-
-                        </div>
+                        <MudItem xs="12">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <p>Loading current profile settings ...</p>
+                            </MudPaper>
+                        </MudItem>
                     }
                     else
                     {
-                        switch (CurrentProfile.Approval)
-                        {
-                            case 0:
-                                <p>Once the profile has been approved, you will be able to see all details.</p>
-                                break;
-                            case 1:
-                                if (SearchedProfile == null)
-                                {
-                                    <p>Loading profile ...</p>
-                                }
-                                else
-                                {
-                                    <div class="col-md-7">
+                        <div class="row">
+                            @if (currentUserIsAdmin)
+                            {
+                                <div class="col-md-7">
+                                    <EditForm Context="adminForm" Model="@SearchedProfile" OnSubmit="(()=>SubmitEdit())">
                                         <div class="card">
                                             <div class="card-body">
-                                                <h5 class="card-title">Name : <b> @SearchedProfile.Name </b></h5>
-                                                <p class="card-text"> About : <br /> @SearchedProfile.About</p>
-                                                @if (SearchedProfile.Member == 1)
-                                                {
-                                                    <p class="card-text"> Other : <br /> @SearchedProfile.Other</p>
+                                                <h5 class="card-title"><b> Edit profile state </b></h5>
+                                                <div class="form-group">
+                                                    <label class="form-label">Name</label>
+                                                    <InputText class="form-control" @bind-Value="SearchedProfile.Name"></InputText>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Email</label>
+                                                    <InputText class="form-control" disabled="true" @bind-Value="SearchedUserEmail"></InputText>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Country</label>
+                                                    <InputSelect class="form-control" @bind-Value="@SearchedProfile.IdCountry">
+                                                        <option value="0">Select a country</option>
+                                                        @foreach (var cnt in countries.OrderBy(s => s.Value))
+                                                        {
+                                                            <option value="@cnt.Key">@cnt.Value</option>
+                                                        }
+                                                    </InputSelect>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">City</label>
+                                                    <InputText class="form-control" @bind-Value="SearchedProfile.City"></InputText>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Language</label>
+                                                    <InputSelect class="form-control" @bind-Value="@SearchedProfile.IdLanguage">
+                                                        <option value="0">Select a language</option>
+                                                        @foreach (var cnt in languages.OrderBy(s => s.Value))
+                                                        {
+                                                            <option value="@cnt.Key">@cnt.Value</option>
+                                                        }
+                                                    </InputSelect>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Activity</label>
+                                                    <InputSelect class="form-control" @bind-Value="@SearchedProfile.IdActivity">
+                                                        <option value="0">Select an activity</option>
+                                                        @foreach (var cnt in activities.OrderBy(s => s.Value))
+                                                        {
+                                                            <option value="@cnt.Key">@cnt.Value</option>
+                                                        }
+                                                    </InputSelect>
+                                                </div>
 
-                                                }
+                                                <div class="form-group">
+                                                    <label class="form-label">About</label>
+                                                    <InputTextArea style="height:100px" class="form-control" @bind-Value="SearchedProfile.About"></InputTextArea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Photo</label>
+                                                    <InputFile accept=".png,.jpeg,.jpg" OnChange="@LoadFiles" class="form-control"></InputFile>
+                                                </div>
+                                                <div class="form-group">
+                                                    <InputCheckbox @bind-Value="SearchedProfile.Available"></InputCheckbox> Available
+                                                </div>
                                             </div>
+
                                             <ul class="list-group list-group-flush">
                                                 <li class="list-group-item">
-                                                   Available : <b>
-                                                        @(SearchedProfile.Available == true ? "Yes" : "No")
-                                                    </b>
+                                                    <label class="form-label">Admin role</label> <br>
+                                                    <InputCheckbox @bind-Value="isAdminChecked"></InputCheckbox> User Has ADMIN ROLE
                                                 </li>
-                                                <li class="list-group-item">Country : <b>@MapCountry(SearchedProfile.IdCountry)</b></li>
-                                                <li class="list-group-item">City : <b>@SearchedProfile.City</b></li>
-                                                <li class="list-group-item">Language : <b>@MapLanguage(SearchedProfile.IdLanguage)</b></li>
-                                                <li class="list-group-item">Activity : <b>@MapActivity(SearchedProfile.IdActivity)</b></li>
-                                                <li class="list-group-item">Member : <b>@(SearchedProfile.Member == 1 ? "Yes" : "No") </b></li>
+                                                <li class="list-group-item">
+                                                    <label class="form-label">Approval</label>
+                                                    <InputRadioGroup @bind-Value="SearchedProfile.Approval">
+                                                        <br>
+                                                        <InputRadio Value="0" />Under Review <br>
+                                                        <InputRadio Value="1" />Yes      <br>
+                                                        <InputRadio Value="2" />No
+                                                    </InputRadioGroup>
+
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <label class="form-label">Approval message</label>
+                                                    <InputText class="form-control" disabled="@(SearchedProfile.Approval!=2)" @bind-Value="SearchedProfile.ApprovalMessage"></InputText>
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <label class="form-label">Member</label>
+                                                    <InputRadioGroup @bind-Value="SearchedProfile.Member">
+                                                        <br>
+                                                        <InputRadio Value="1" />Yes <br />
+                                                        <InputRadio Value="0" />No
+                                                    </InputRadioGroup>
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <label class="form-label">Other</label>
+                                                    <InputTextArea style="height:100px" disabled="@(SearchedProfile.Member==0)" class="form-control" @bind-Value="SearchedProfile.Other"></InputTextArea>
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <p class="text-center text-success">@EditMessageSuccess</p>
+                                                    <p class="text-center text-danger">@EditMessageError</p>
+                                                </li>
                                             </ul>
+                                            <div class="card-footer">
+                                                <button type="submit" disabled="@loadingSubmit" class="btn btn-primary">Submit</button>
+                                            </div>
                                         </div>
-                                    </div>
+
+                                    </EditForm>
 
 
-
-                                }
-                                break;
-                            case 2:
-                                <p>Sorry, your profile has not been approved. Please visit your profile page to see the reason.</p>
-                                break;
-                        }
-                    }
-                    @if ((currentUserIsAdmin || CurrentProfile.Approval == 1))
-                    {
-                        <div class="col-md-5 text-center">
-                            @if (string.IsNullOrEmpty(Base64Photo))
-                            {
-                                <p>Loading user photo ...</p>
+                                </div>
                             }
                             else
                             {
-                                @if (Base64Photo == "NULL")
+                                switch (CurrentProfile.Approval)
                                 {
-                                    <p class="text-center">No photo found</p>
-                                }
-                                else
-                                {
-                                    <img class="" width="200" height="200" src="@Base64Photo">
+                                    case 0:
+                                        <MudItem xs="12">
+                                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                                <p>Once the profile has been approved, you will be able to see all details.</p>
+                                            </MudPaper>
+                                        </MudItem>
+                                        break;
+                                    case 1:
+                                        if (SearchedProfile == null)
+                                        {
+                                            <MudItem xs="12">
+                                                <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                                    <p>Loading profile ...</p>
+                                                </MudPaper>
+                                            </MudItem>
 
+                                        }
+                                        else
+                                        {
+                                            <MudItem xs="8">
+                                                <MudCard>
+                                                    <MudCardHeader>
+                                                        <CardHeaderAvatar>
+                                                            @if (string.IsNullOrEmpty(Base64Photo))
+                                                            {
+                                                                <p>Loading user photo ...</p>
+                                                            }
+                                                            else
+                                                            {
+                                                                @if (Base64Photo == "NULL")
+                                                                {
+                                                                    <img class="" width="50" height="50" src="/images/DefaultUser.png">
+                                                                }
+                                                                else
+                                                                {
+                                                                    <img class="" width="50" height="50" src="@Base64Photo">
+
+                                                                }
+                                                            }
+                                                        </CardHeaderAvatar>
+                                                        <CardHeaderContent>
+                                                            <MudText Typo="Typo.h6"> <b>  @SearchedProfile.Name </b>  </MudText>
+                                                        </CardHeaderContent>
+                                                        <CardHeaderActions>
+                                                            @if (SearchedProfile.Available)
+                                                            {
+                                                                <b> Available <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" />  </b>
+                                                            }
+                                                            else
+                                                            {
+                                                                <b> Not Available <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" />  </b>
+                                                            }
+                                                            <br />
+                                                            @if (SearchedProfile.Member == 1)
+                                                            {
+                                                                <b> Member <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Success" />  </b>
+                                                            }
+                                                            else
+                                                            {
+                                                                <b> Not Member <MudIconButton Icon="@Icons.Material.Filled.Block" Color="Color.Error" />  </b>
+                                                            }
+                                                        </CardHeaderActions>
+                                                    </MudCardHeader>
+                                                    <MudCardContent>
+                                                        <MudText Typo="Typo.subtitle2"> Country : <b> @MapCountry(SearchedProfile.IdCountry) </b> | City : @SearchedProfile.City </MudText>
+                                                        <MudText Typo="Typo.body2">Language : <b> @MapLanguage(SearchedProfile.IdLanguage) </b></MudText>
+                                                        <MudText Typo="Typo.body2">Activity : <b>@MapActivity(SearchedProfile.IdActivity)</b> </MudText>
+                                                        <MudText Typo="Typo.body2">About :</MudText>
+                                                        <MudText Typo="Typo.subtitle2">
+                                                            @SearchedProfile.About
+                                                        </MudText>
+
+                                                        @if (SearchedProfile.Member == 1)
+                                                        {
+                                                            <MudText Typo="Typo.body2">Other :</MudText>
+                                                            <MudText Typo="Typo.subtitle2">
+                                                                @SearchedProfile.Other
+                                                            </MudText>
+                                                        }
+
+                                                    </MudCardContent>
+                                                </MudCard>
+                                            </MudItem>
+                                        }
+                                        break;
+                                    case 2:
+                                        <MudItem xs="12">
+                                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                                <p>Sorry, your profile has not been approved. Please visit your profile page to see the reason.</p>
+                                            </MudPaper>
+                                        </MudItem>
+
+                                        break;
                                 }
                             }
+                            @if ((currentUserIsAdmin || CurrentProfile.Approval == 1))
+                            {
+                                <MudItem xs="4">
+                                    <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                        @if (string.IsNullOrEmpty(Base64Photo))
+                                        {
+                                            <p>Loading user photo ...</p>
+                                        }
+                                        else
+                                        {
+                                            @if (Base64Photo == "NULL")
+                                            {
+                                                <img class="" width="200" height="200" src="/images/DefaultUser.png">
+                                            }
+                                            else
+                                            {
+                                                <img class="" width="200" height="200" src="@Base64Photo">
+
+                                            }
+                                        }
+                                    </MudPaper>
+
+                                </MudItem>
+
+                            }
+
                         </div>
                     }
+                }
 
-                </div>
-            }
-        }
+            </Authorized>
+            <NotAuthorized>
+                <MudItem xs="12">
+                    <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                        <p class="text-center text-danger">please log in so you can display all user details.</p>
+                    </MudPaper>
+                </MudItem>
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudGrid>
+</MudContainer>
 
-    </Authorized>
-    <NotAuthorized>
-        <p class="text-center text-danger">please log in so you can display all user details.</p>
-    </NotAuthorized>
-</AuthorizeView>
+
 
 @code {
     [Parameter]

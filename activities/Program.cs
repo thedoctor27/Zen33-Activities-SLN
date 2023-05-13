@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using MudBlazor.Services;
+using activities.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 
 builder.Services.AddLocalization();
+
+builder.Services.AddMudServices();
 
 
 builder.Services.AddRazorPages().AddViewLocalization(LanguageViewLocationExpanderFormat
@@ -50,9 +54,10 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<IActivitiesRepository, ActivitiesRepository>();
+builder.Services.AddScoped<IActivitiesRepository, ActivitiesRepository>();
 builder.Services.AddScoped<IUserProfileReposiotry, UserProfileReposiotry>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<TokenProvider>();
 
 var app = builder.Build();
 

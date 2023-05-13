@@ -1,5 +1,8 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Web
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+
 @namespace activities.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
@@ -12,11 +15,16 @@
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
     <link href="activities.styles.css" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="favicon.png"/>
+    <link rel="icon" type="image/png" href="favicon.png" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
 </head>
 <body>
-    <component type="typeof(App)" render-mode="ServerPrerendered" />
+    @{
+        var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+    }
+    <component type="typeof(App)" render-mode="ServerPrerendered" param-AntiforgeryToken="token" />
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
@@ -30,5 +38,6 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </body>
 </html>

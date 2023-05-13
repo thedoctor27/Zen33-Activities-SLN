@@ -14,148 +14,243 @@
 @inject IStringLocalizer<Countries> CountriesLocalizer
 @inject IStringLocalizer<Languages> LanguagesLocalizer
 
-<h3>Search</h3>
-<EditForm Model="@searchModel" OnSubmit="(()=>SubmitNewSearch())">
-    <div class="row mb-2">
-        <div class="col-md-6">
-            <label class="form-label">Countries</label>
-            <InputSelect class="form-control" ValueExpression="@(()=>searchModel.IdCountry)" Value="@searchModel.IdCountry"
-                         ValueChanged="@((int value) => CountryChanged(value))">
-                <option value="0">Select a country</option>
-                @foreach (var cnt in countries.Where(x => ActiveCountries.Contains(x.Key)).OrderBy(s => s.Value))
-                {
-                    <option value="@cnt.Key">@cnt.Value</option>
-                }
-            </InputSelect>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">City</label>
-            <InputText class="form-control" @bind-Value="searchModel.City"></InputText>
-        </div>
-    </div>
-    <div class="row mb-2">
-        <div class="col-md-6">
-            <label class="form-label">Languages</label>
-            <InputSelect class="form-control" @bind-Value="searchModel.IdLanguage">
-                <option value="0">Select a language</option>
-                @foreach (var cnt in languages.Where(x => ActiveLanguages.Contains(x.Key)).OrderBy(s => s.Value))
-                {
-                    <option value="@cnt.Key">@cnt.Value</option>
-                }
-            </InputSelect>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Activities</label>
-            <InputSelect class="form-control" @bind-Value="searchModel.IdActivity">
-                <option value="0">Select an activity</option>
-                @foreach (var cnt in activities.Where(x => ActiveActivities.Contains(x.Key)).OrderBy(s => s.Value))
-                {
-                    <option value="@cnt.Key">@cnt.Value</option>
-                }
-            </InputSelect>
-        </div>
-    </div>
-    <div class="row mb-2">
-        <div class="col-md-6">
-            <label class="form-label">Available</label>
+<MudContainer Width="100%" MaxWidth="MaxWidth.ExtraExtraLarge">
+    <MudGrid Class="mt-2">
+        <MudItem xs="4">
+            <MudCard>
+                <MudCardHeader Class="pb-1">
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Search Form</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Default" />
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent Class="pt-0">
+                    <EditForm Model="@searchModel" OnSubmit="(()=>SubmitNewSearch())">
+                        <MudGrid>
+                            <MudItem xs="7">
+                                <MudAutocomplete T="Country" Label="Countries" ValueChanged="@((e)=>CountryChanged(e))"
+                                                 SearchFunc="@SearchCountry" Value="SelectedCountry"
+                                                 ResetValueOnEmptyText="true"
+                                                 CoerceText="false" CoerceValue="false"
+                                                 AdornmentColor="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="5">
+                                <MudTextField @bind-Value="searchModel.City" Label="City" Variant="Variant.Text"></MudTextField>
+                            </MudItem>
+                            <MudItem xs="7">
+                                <MudAutocomplete T="Language" Label="Languages" ValueChanged="@((e)=>LanguageChanged(e))"
+                                                 SearchFunc="@SearchLanguage" Value="SelectedLanguage"
+                                                 ResetValueOnEmptyText="true"
+                                                 CoerceText="false" CoerceValue="false"
+                                                 AdornmentColor="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="5">
+                                <MudSelect T="int" Label="Available state" @bind-Value="searchModel.Available" AnchorOrigin="Origin.BottomCenter">
+                                    <MudSelectItem Value="-1">All Users</MudSelectItem>
+                                    <MudSelectItem Value="0">Only vailable </MudSelectItem>
+                                    <MudSelectItem Value="1">Only not available</MudSelectItem>
+                                </MudSelect>
+                            </MudItem>
+                            <MudItem xs="7">
+                                <MudAutocomplete T="Activity" Label="Activities" ValueChanged="@((e)=>ActivityChanged(e))"
+                                                 SearchFunc="@SearchActivity" Value="SelectedActivity"
+                                                 ResetValueOnEmptyText="true"
+                                                 CoerceText="false" CoerceValue="false"
+                                                 AdornmentColor="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="5">
+                                <MudSelect T="int" Label="Results per page" @bind-Value="searchModel.PageSize" AnchorOrigin="Origin.BottomCenter">
+                                    <MudSelectItem Value="10">10</MudSelectItem>
+                                    <MudSelectItem Value="25">25</MudSelectItem>
+                                    <MudSelectItem Value="50">50 </MudSelectItem>
+                                    <MudSelectItem Value="100">100</MudSelectItem>
+                                </MudSelect>
+                            </MudItem>
+                        </MudGrid>
+                        <MudCardActions>
+                            <MudButton OnClick="ClearForm" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Clear">Clear</MudButton>
+                            <MudSpacer />
+                            <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Search" Variant="Variant.Filled" disabled="@(searchModel.IdLanguage==0&&searchModel.IdCountry==0&&string.IsNullOrEmpty(searchModel.City))" Color="Color.Primary">Search</MudButton>
+                        </MudCardActions>
+                    </EditForm>
+                </MudCardContent>
 
-            <InputSelect class="form-control" @bind-Value="searchModel.Available">
-                <option value="-1">Available state</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
-            </InputSelect>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Results per page</label>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="8">
+            <MudCard>
+                <MudCardHeader Class="pb-1">
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Search Result</MudText>
+                        <MudText Typo="Typo.subtitle1">Total of @TotalSearchResults users found</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudSwitch @bind-Checked="@DisplayInCards" Color="Color.Primary" Label="Cards view" />
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudTable RowsPerPageChanged="UpdatePageSize" RowsPerPage="searchModel.PageSize" ServerData="@(new Func<TableState, Task<TableData<UserProfile>>>(ServerReload))"
+                              Dense="true" Hover="true" @ref="table">
 
-            <InputSelect class="form-control" @bind-Value="searchModel.PageSize">
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </InputSelect>
-        </div>
+                        <HeaderContent>
+                            @if (!DisplayInCards)
+                            {
+                                <MudTh>photo</MudTh>
+                                <MudTh>Name</MudTh>
+                                <MudTh>Country</MudTh>
+                                <MudTh>City</MudTh>
+                                <MudTh>Language</MudTh>
+                                <MudTh>Activity</MudTh>
+                                <MudTh>Available</MudTh>
+                                <MudTh></MudTh>
+                            }
 
-        <div class="col-md-4">
-            <br />
-            <button type="submit" disabled="@(searchModel.IdLanguage==0&&searchModel.IdCountry==0&&string.IsNullOrEmpty(searchModel.City))" class="btn btn-primary">Search</button>
-        </div>
-    </div>
+                        </HeaderContent>
+                        <RowTemplate>
+                            @if (!DisplayInCards)
+                            {
+                                <MudTd>
+                                    @if (!string.IsNullOrEmpty(context.Base64Photo))
+                                    {
+                                        <img class="" width="50" height="50" src="@context.Base64Photo">
+                                    }
+                                    else
+                                    {
+                                        <img class="" width="50" height="50" src="/images/DefaultUser.png">
+                                    }
+                                </MudTd>
+                                <MudTd DataLabel="Name">
+                                    <b> <a target="_blank" href="Profile/@context.UserId"> @context.Name </a> </b>
+                                </MudTd>
+                                <MudTd DataLabel="Country">
+                                    @MapCountry(context.IdCountry)
+                                </MudTd>
+                                <MudTd DataLabel="City">
+                                    @context.City
+                                </MudTd>
+                                <MudTd DataLabel="Language">
+                                    @MapLanguage(context.IdLanguage)
+                                </MudTd>
+                                <MudTd DataLabel="Activity">
+                                    @MapActivity(context.IdActivity)
+                                </MudTd>
+                                <MudTd DataLabel="Available">
+                                    @(context.Available == true ? "Yes" : "No")
+                                </MudTd>
+                                <MudTd>
+                                    <MudButton target="_blank" Href="@("Profile/"+@context.UserId)" Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary">Profile</MudButton>
+                                </MudTd>
+                            }
+                            else
+                            {
+                                <MudTd>
+                                    <a target="_blank" href="Profile/@context.UserId">
+                                        <MudCard>
+                                            <MudCardHeader>
+                                                <CardHeaderAvatar>
+                                                    @if (!string.IsNullOrEmpty(context.Base64Photo))
+                                                    {
+                                                        <img class="" width="50" height="50" src="@context.Base64Photo">
+                                                    }
+                                                    else
+                                                    {
+                                                        <img class="" width="50" height="50" src="/images/DefaultUser.png">
+                                                    }
+                                                </CardHeaderAvatar>
+                                                <CardHeaderContent>
+                                                    <MudText Typo="Typo.h6"> <b>  @context.Name </b>  </MudText>
+                                                    <MudText Typo="Typo.subtitle2"> Country : <b> @MapCountry(context.IdCountry) </b> | City : @context.City </MudText>
+                                                    <MudText Typo="Typo.body2">Language : <b> @MapLanguage(context.IdLanguage) </b></MudText>
+                                                    <MudText Typo="Typo.body2">Activity : <b>@MapActivity(context.IdActivity)</b> </MudText>
+                                                </CardHeaderContent>
+                                                <CardHeaderActions>
+                                                    @if (context.Available)
+                                                    {
+                                                        <b> Available <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" />  </b>
+                                                    }
+                                                    else
+                                                    {
+                                                        <b> Not Available <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" />  </b>
+                                                    }
+                                                </CardHeaderActions>
+                                            </MudCardHeader>
+                                        </MudCard>
+                                    </a>
+                                </MudTd>
+                            }
 
-</EditForm>
-<hr />
-@if (profiles == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <p>Total of @TotalSearchResults users found</p>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>photo</th>
-                <th>Name</th>
-                <th>Country</th>
-                <th>City</th>
-                <th>Language</th>
-                <th>Activity</th>
-                <th>Available</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var profile in profiles)
-            {
-                <tr>
-                    <td>
-                        @if (!string.IsNullOrEmpty(profile.Base64Photo))
-                        {
-                            <img class="" width="50" height="50" src="@profile.Base64Photo">
-                        }
-                        else
-                        {
-                            <small>No photo</small>
-                        }
-                    </td>
-                    <td> <a target="_blank" href="Profile/@profile.UserId"> @profile.Name </a> </td>
-                    <td>@MapCountry(profile.IdCountry)</td>
-                    <td>@profile.City</td>
-                    <td>@MapLanguage(profile.IdLanguage)</td>
-                    <td>@MapActivity(profile.IdActivity)</td>
-                    <td> @(profile.Available == true ? "Yes" : "No")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <br />
-    <nav aria-label="navigation">
-        <ul class="pagination justify-content-center">
-            @for (int p = 1; p <= TotalSearchResults / searchModel.PageSize; p++)
-            {
-                var local_p = p;
-                <li class="page-item">
-                    <button type="button" class="btn @(local_p==currentPage ? "btn-primary" : "") " @onclick="(e=>UpdatePage(local_p))"> @local_p</button>
-                </li>
-            }
-        </ul>
-    </nav>
-}
+                        </RowTemplate>
+                        <NoRecordsContent>
+                            <MudText>No matching records found</MudText>
+                        </NoRecordsContent>
+                        <LoadingContent>
+                            <MudText>Loading...</MudText>
+                        </LoadingContent>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudCardContent>
+                <MudCardActions>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 @code {
+
+
+
+    private IEnumerable<UserProfile> pagedData;
+    private MudTable<UserProfile> table;
     private int TotalSearchResults = 0;
-    private int currentPage = 1;
+    private bool FirstSubmit = true;
+    private bool DisplayInCards = false;
+    private async Task<TableData<UserProfile>> ServerReload(TableState state)
+    {
+        if (searchModel.IdLanguage != 0 || searchModel.IdCountry != 0 || !string.IsNullOrEmpty(searchModel.City))
+        {
+            if (FirstSubmit)
+            {
+                TotalSearchResults = await _profileService.CountSearchProfiles(searchModel);
+                FirstSubmit = false;
+            }
+            try
+            {
+                pagedData = await _profileService.SearchProfiles(state.Page + 1, searchModel);
+            }
+            catch (Exception ex)
+            {
+                //hundle changing the page size not if first page
+                await table.ReloadServerData();
+            }
+        }
+        else
+        {
+            pagedData = new List<UserProfile>();
+        }
+        return new TableData<UserProfile>() { TotalItems = TotalSearchResults, Items = pagedData };
+
+    }
+
     SearchModel searchModel = new SearchModel
         {
             IdActivity = 0,
             IdCountry = 0,
             IdLanguage = 0,
             City = "",
-            PageSize = 25,
+            PageSize = 10,
             Approval = -1,// set this to 1 and it will display only approved users ( -1 : all users)
             Member = -1,
-            Available =-1
+            Available = -1
         };
 
-    private UserProfile[]? profiles = new UserProfile[] { };
+    private Country SelectedCountry;
+    private Language SelectedLanguage;
+    private Activity SelectedActivity;
 
     private Dictionary<string, string> countries = new Dictionary<string, string>();
     private Dictionary<string, string> languages = new Dictionary<string, string>();
@@ -163,6 +258,9 @@ else
     private string[] ActiveCountries = new string[] { };
     private string[] ActiveLanguages = new string[] { };
     private int[] ActiveActivities = new int[] { };
+
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -179,31 +277,101 @@ else
         ActiveLanguages = await _profileService.GetProfilesLanguages(0);
 
     }
-    private async Task CountryChanged(int country)
+
+    private void ClearForm()
     {
-        searchModel.IdCountry = country;
-        searchModel.IdLanguage = 0;
-        ActiveLanguages = await _profileService.GetProfilesLanguages(searchModel.IdCountry);
+        searchModel = new SearchModel
+            {
+                IdActivity = 0,
+                IdCountry = 0,
+                IdLanguage = 0,
+                City = "",
+                PageSize = 10,
+                Approval = -1,// set this to 1 and it will display only approved users ( -1 : all users)
+                Member = -1,
+                Available = -1
+            };
+        SelectedCountry = null;
+        SelectedLanguage = null;
+        SelectedActivity = null;
     }
-    private Task UpdatePage(int page)
+
+    private async Task<IEnumerable<Country>> SearchCountry(string value)
     {
-        currentPage = page;
-        return SearchAction();
+        return countries.AsParallel().Where(x => ActiveCountries.Contains(x.Key) && (string.IsNullOrEmpty(value) ? true : x.Value.Contains(value, StringComparison.InvariantCultureIgnoreCase))).Select(s => new Country
+            {
+                Id = Convert.ToInt32(s.Key),
+                Name = s.Value
+            }).OrderBy(x => x.Name);
+    }
+    private async Task<IEnumerable<Language>> SearchLanguage(string value)
+    {
+        return languages.AsParallel().Where(x => ActiveLanguages.Contains(x.Key) && (string.IsNullOrEmpty(value) ? true : x.Value.Contains(value, StringComparison.InvariantCultureIgnoreCase))).Select(s => new Language
+            {
+                Id = Convert.ToInt32(s.Key),
+                Name = s.Value
+            }).OrderBy(x => x.Name);
+    }
+    private async Task<IEnumerable<Activity>> SearchActivity(string value)
+    {
+        return activities.AsParallel().Where(x => ActiveActivities.Contains(x.Key) && (string.IsNullOrEmpty(value) ? true : x.Value.Contains(value, StringComparison.InvariantCultureIgnoreCase))).Select(s => new Activity
+            {
+                Id = Convert.ToInt32(s.Key),
+                Name = s.Value
+            }).OrderBy(x => x.Name);
+    }
+
+    private async Task CountryChanged(Country country)
+    {
+        if (country != null)
+        {
+            SelectedCountry = country;
+            searchModel.IdCountry = country.Id;
+            searchModel.IdLanguage = 0;
+        }
+        else
+        {
+            searchModel.IdCountry = 0;
+        }
+        ActiveLanguages = await _profileService.GetProfilesLanguages(searchModel.IdCountry);
+
+    }
+    private async Task LanguageChanged(Language language)
+    {
+        if (language != null)
+        {
+            SelectedLanguage = language;
+            searchModel.IdLanguage = language.Id;
+        }
+        else
+        {
+            searchModel.IdLanguage = 0;
+        }
+    }
+    private async Task ActivityChanged(Activity activity)
+    {
+        if (activity != null)
+        {
+            SelectedActivity = activity;
+            searchModel.IdActivity = activity.Id;
+        }
+        else
+        {
+            searchModel.IdActivity = 0;
+        }
+    }
+
+
+
+    private async Task UpdatePageSize(int size)
+    {
+        FirstSubmit = true;
+        searchModel.PageSize = size;
     }
     private async Task SubmitNewSearch()
     {
-        if (searchModel.IdLanguage != 0 || searchModel.IdCountry != 0 || !string.IsNullOrEmpty(searchModel.City))
-        {
-            TotalSearchResults = await _profileService.CountSearchProfiles(searchModel);
-            currentPage = 1;
-            StateHasChanged();
-            await SearchAction();
-        }
-    }
-    private async Task SearchAction()
-    {
-        profiles = null;
-        profiles = await _profileService.SearchProfiles(currentPage, searchModel);
+        FirstSubmit = true;
+        await table.ReloadServerData();
     }
 
     private string MapCountry(int id)
@@ -238,9 +406,5 @@ else
         {
             return "NotFound_" + id;
         }
-    }
-
-    private void SeedRandomData()
-    {
     }
 }
