@@ -14,152 +14,163 @@
 @using activities.Resources;
 @inject IStringLocalizer<Countries> CountriesLocalizer
 @inject IStringLocalizer<Languages> LanguagesLocalizer
-<h3>Manage Users</h3>
-<EditForm Model="@searchModel" OnSubmit="(()=>SubmitNewSearch())">
-    <div class="row mb-2">
-        <div class="col-md-6">
-            <label class="form-label">Countries</label>
-            <InputSelect class="form-control" ValueExpression="@(()=>searchModel.IdCountry)" Value="@searchModel.IdCountry"
-                         ValueChanged="@((int value) => CountryChanged(value))">
-                <option value="0">Select a country</option>
-                @foreach (var cnt in countries.Where(x => ActiveCountries.Contains(x.Key)).OrderBy(s => s.Value))
-                {
-                    <option value="@cnt.Key">@cnt.Value</option>
-                }
-            </InputSelect>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">City</label>
-            <InputText class="form-control" @bind-Value="searchModel.City"></InputText>
-        </div>
-    </div>
-    <div class="row mb-2">
-        <div class="col-md-6">
-            <label class="form-label">Languages</label>
-            <InputSelect class="form-control" @bind-Value="searchModel.IdLanguage">
-                <option value="0">Select a language</option>
-                @foreach (var cnt in languages.Where(x => ActiveLanguages.Contains(x.Key)).OrderBy(s => s.Value))
-                {
-                    <option value="@cnt.Key">@cnt.Value</option>
-                }
-            </InputSelect>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Activities</label>
-            <InputSelect class="form-control" @bind-Value="searchModel.IdActivity">
-                <option value="0">Select an activity</option>
-                @foreach (var cnt in activities.Where(x => ActiveActivities.Contains(x.Key)).OrderBy(s => s.Value))
-                {
-                    <option value="@cnt.Key">@cnt.Value</option>
-                }
-            </InputSelect>
-        </div>
-    </div>
-    <div class="row mb-2">
-        <div class="col-md-3">
-            <label class="form-label">Approval</label>
-            <InputSelect class="form-control" @bind-Value="searchModel.Approval">
-                <option value="-1">Approval state</option>
-                <option value="0">Under review</option>
-                <option value="1">Yes</option>
-                <option value="2">No</option>
-            </InputSelect>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">Member</label>
-            <InputSelect class="form-control" @bind-Value="searchModel.Member">
-                <option value="-1">Memeber state</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
-            </InputSelect>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">Available</label>
 
-            <InputSelect class="form-control" @bind-Value="searchModel.Available">
-                <option value="-1">Available state</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
-            </InputSelect>
+<div class="container">
+    <h3>Manage Users</h3>
+    <EditForm Model="@searchModel" OnSubmit="(()=>SubmitNewSearch())">
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <label class="form-label">Countries</label>
+                <InputSelect class="form-control" ValueExpression="@(()=>searchModel.IdCountry)" Value="@searchModel.IdCountry"
+                             ValueChanged="@((int value) => CountryChanged(value))">
+                    <option value="0">Select a country</option>
+                    @foreach (var cnt in countries.Where(x => ActiveCountries.Contains(x.Key)).OrderBy(s => s.Value))
+                    {
+                        <option value="@cnt.Key">@cnt.Value</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">City</label>
+                <InputText class="form-control" @bind-Value="searchModel.City"></InputText>
+            </div>
         </div>
-        <div class="col-md-3">
-            <label class="form-label">Results per page</label>
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <label class="form-label">Languages</label>
+                <InputSelect class="form-control" @bind-Value="searchModel.IdLanguage">
+                    <option value="0">Select a language</option>
+                    @foreach (var cnt in languages.Where(x => ActiveLanguages.Contains(x.Key)).OrderBy(s => s.Value))
+                    {
+                        <option value="@cnt.Key">@cnt.Value</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Activities</label>
+                <InputSelect class="form-control" @bind-Value="searchModel.IdActivity">
+                    <option value="0">Select an activity</option>
+                    @foreach (var cnt in activities.Where(x => ActiveActivities.Contains(x.Key)).OrderBy(s => s.Value))
+                    {
+                        <option value="@cnt.Key">@cnt.Value</option>
+                    }
+                </InputSelect>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-3">
+                <label class="form-label">Approval</label>
+                <InputSelect class="form-control" @bind-Value="searchModel.Approval">
+                    <option value="-1">Approval state</option>
+                    <option value="0">Under review</option>
+                    <option value="1">Yes</option>
+                    <option value="2">No</option>
+                </InputSelect>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Member</label>
+                <InputSelect class="form-control" @bind-Value="searchModel.Member">
+                    <option value="-1">Memeber state</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </InputSelect>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Available</label>
 
-            <InputSelect class="form-control" @bind-Value="searchModel.PageSize">
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </InputSelect>
-        </div>
-        <div class="col-md-3">
-            <br />
-            <button type="submit" disabled="@(searchModel.IdLanguage==0&&searchModel.IdCountry==0&&string.IsNullOrEmpty(searchModel.City))" class="btn btn-primary">Search</button>
-        </div>
-    </div>
+                <InputSelect class="form-control" @bind-Value="searchModel.Available">
+                    <option value="-1">Available state</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </InputSelect>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Results per page</label>
 
-</EditForm>
-<hr />
-@if (profiles == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <p>Total of @TotalSearchResults users found</p>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>photo</th>
-                <th>Name</th>
-                <th>Country</th>
-                <th>City</th>
-                <th>Language</th>
-                <th>Activity</th>
-                <th>Available</th>
-                <th>Approval</th>
-                <th>Member</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var profile in profiles)
-            {
+                <InputSelect class="form-control" @bind-Value="searchModel.PageSize">
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </InputSelect>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Users To display <br /><small>Test mode will be ignored</small></label>
+
+                <InputSelect class="form-control" @bind-Value="searchModel.testUser">
+                    <option value="0">All User</option>
+                    <option value="1">True users</option>
+                    <option value="2">Test users</option>
+                </InputSelect>
+            </div>
+            <div class="col-md-3">
+                <br />
+                <button type="submit" disabled="@(searchModel.IdLanguage==0&&searchModel.IdCountry==0&&string.IsNullOrEmpty(searchModel.City))" class="btn btn-primary">Search</button>
+            </div>
+        </div>
+
+    </EditForm>
+    <hr />
+    @if (profiles == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <p>Total of @TotalSearchResults users found</p>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>
-                        @if (!string.IsNullOrEmpty(profile.Base64Photo))
-                        {
-                            <img class="" width="50" height="50" src="@profile.Base64Photo">
-                        }
-                        else
-                        {
-                            <small>No photo</small>
-                        }
-                    </td>
-                    <td> <a target="_blank" href="Profile/@profile.UserId"> @profile.Name </a> </td>
-                    <td>@MapCountry(profile.IdCountry)</td>
-                    <td>@profile.City</td>
-                    <td>@MapLanguage(profile.IdLanguage)</td>
-                    <td>@MapActivity(profile.IdActivity)</td>
-                    <td> @(profile.Available == true ? "Yes" : "No")</td>
-                    <td>@(profile.Approval == 0 ? "Under Review" : profile.Approval == 1 ? "Yes" : "No")</td>
-                    <td>@(profile.Member == 1 ? "Yes" : "No")</td>
+                    <th>photo</th>
+                    <th>Name</th>
+                    <th>Country</th>
+                    <th>City</th>
+                    <th>Language</th>
+                    <th>Activity</th>
+                    <th>Available</th>
+                    <th>Approval</th>
+                    <th>Member</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-    <br />
-    <nav aria-label="navigation">
-        <ul class="pagination justify-content-center">
-            @for (int p = 1; p <= TotalSearchResults / searchModel.PageSize; p++)
-            {
-                var local_p = p;
-                <li class="page-item">
-                    <button type="button" class="btn @(local_p==currentPage ? "btn-primary" : "") " @onclick="(e=>UpdatePage(local_p))"> @local_p</button>
-                </li>
-            }
-        </ul>
-    </nav>
-}
-
+            </thead>
+            <tbody>
+                @foreach (var profile in profiles)
+                {
+                    <tr>
+                        <td>
+                            @if (!string.IsNullOrEmpty(profile.Base64Photo))
+                            {
+                                <img class="" width="50" height="50" src="@profile.Base64Photo">
+                            }
+                            else
+                            {
+                                <small>No photo</small>
+                            }
+                        </td>
+                        <td> <a target="_blank" href="Profile/@profile.UserId"> @profile.Name </a> </td>
+                        <td>@MapCountry(profile.IdCountry)</td>
+                        <td>@profile.City</td>
+                        <td>@MapLanguage(profile.IdLanguage)</td>
+                        <td>@MapActivity(profile.IdActivity)</td>
+                        <td> @(profile.Available == true ? "Yes" : "No")</td>
+                        <td>@(profile.Approval == 0 ? "Under Review" : profile.Approval == 1 ? "Yes" : "No")</td>
+                        <td>@(profile.Member == 1 ? "Yes" : "No")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <br />
+        <nav aria-label="navigation">
+            <ul class="pagination justify-content-center">
+                @for (int p = 1; p <= TotalSearchResults / searchModel.PageSize; p++)
+                {
+                    var local_p = p;
+                    <li class="page-item">
+                        <button type="button" class="btn @(local_p==currentPage ? "btn-primary" : "") " @onclick="(e=>UpdatePage(local_p))"> @local_p</button>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
 @code {
 
     private int TotalSearchResults = 0;
@@ -173,7 +184,8 @@ else
             PageSize = 25,
             Approval = -1,
             Member = -1,
-            Available = -1
+            Available = -1,
+            testUser =0
         };
 
     private UserProfile[]? profiles = new UserProfile[] { };

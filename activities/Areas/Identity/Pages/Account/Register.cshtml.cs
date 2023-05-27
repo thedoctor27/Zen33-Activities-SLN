@@ -141,6 +141,7 @@ namespace activities.Areas.Identity.Pages.Account
                         Approval = 0,
                         Member = 0,
                         Available = false,
+                        Test = false,
                         IdCountry = 0,
                         IdLanguage = 0,
                         About = "",
@@ -159,6 +160,7 @@ namespace activities.Areas.Identity.Pages.Account
                             //the first user is the admin by default
                             profile.Approval = 1;
                             profile.Member = 1;
+                            profile.Test = false;
                             var role = await _roleManager.FindByNameAsync("Admin");
                             if(role == null)
                             {

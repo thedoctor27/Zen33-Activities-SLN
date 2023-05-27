@@ -7,6 +7,7 @@ namespace activities.Data
     public class ApplicationDbContext : IdentityDbContext
     {
         public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<AppConfig> AppConfigs { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

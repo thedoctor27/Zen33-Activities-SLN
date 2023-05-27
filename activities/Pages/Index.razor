@@ -6,6 +6,9 @@
 @using activities.Resources;
 @inject IStringLocalizer<Countries> CountriesLocalizer
 @inject IStringLocalizer<Languages> LanguagesLocalizer
+@using activities.Repository.Configs;
+
+@inject IAppConfigsRepository _ConfigService;
 
 <MudContainer  Width="100%" MaxWidth="MaxWidth.ExtraExtraLarge">
     <h1>Welcome</h1>
@@ -60,30 +63,25 @@
         }
 
 
-    </AuthorizeView>
-</MudContainer>
+        @code {
+        private string GroupName;
+        private string SortField;
+        private IEnumerable<StatsModel>? stats;
 
 
-
-@code {
-    private string GroupName;
-    private string SortField;
-    private IEnumerable<StatsModel>? stats;
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        await SetActiveTab("Country");
-    }
-
-    public async Task SetActiveTab(string groupBy)
-    {
-        stats = null;
-        GroupName = groupBy;
-        SortField = "Name";
-        Dictionary<string, string> ressources = new Dictionary<string, string>();
-        switch (groupBy)
+        protected override async Task OnInitializedAsync()
         {
+            await SetActiveTab("Country");
+        }
+
+        public async Task SetActiveTab(string groupBy)
+        {
+            stats = null;
+            GroupName = groupBy;
+            SortField = "Name";
+            Dictionary<string, string> ressources = new Dictionary<string, string>();
+            switch (groupBy)
+            {
             case "Country":
                 ressources = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
                 break;
@@ -91,36 +89,40 @@
                 ressources = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
                 break;
             default: break;
-        }
-        stats = await _profileService.GetStats(groupBy, ressources);
+            }
+            stats = await _profileService.GetStats(groupBy, ressources);
 
-    }
-    public async Task SortBy(string field)
-    {
-        SortField = field;
-        switch (field)
+        }
+        public async Task SortBy(string field)
         {
+            SortField = field;
+            switch (field)
+            {
             case "Name":
                 stats = stats.OrderBy(o => o.name);
                 break;
-            case"Total":
+            case "Total":
                 stats = stats.OrderByDescending(o => o.total);
                 break;
-            case"Review":
+            case "Review":
                 stats = stats.OrderByDescending(o => o.review);
                 break;
-            case"Approved":
+            case "Approved":
                 stats = stats.OrderByDescending(o => o.approved);
                 break;
-            case"Not Approved":
+            case "Not Approved":
                 stats = stats.OrderByDescending(o => o.notapproved);
                 break;
-            case"Member":
+            case "Member":
                 stats = stats.OrderByDescending(o => o.member);
                 break;
-            case"Available":
+            case "Available":
                 stats = stats.OrderByDescending(o => o.available);
                 break;
+            }
         }
-    }
-}
+        }
+    </AuthorizeView>
+</MudContainer>
+
+
