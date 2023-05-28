@@ -123,7 +123,8 @@ namespace activities.Areas.Identity.Pages.Account
                         IdLanguage = LanguagesIDs[random.Next(0, languages.Length - 1)],                      
                         Member = 0,
                         Name = "test_"+ (currentUsers + i),
-                        Other=""
+                        Other="",
+                        CreatedAt = DateTime.Now,
                     });
                 }
             }

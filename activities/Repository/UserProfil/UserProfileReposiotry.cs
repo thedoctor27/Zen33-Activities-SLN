@@ -5,7 +5,6 @@ using Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Linq;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace activities.Repository.UserProfil
 {
@@ -29,6 +28,11 @@ namespace activities.Repository.UserProfil
             {
                 return "NotFound_" + id;
             }
+        }
+        public async Task<List<UserProfile>> Last20Registred()
+        {
+            var data =await _db.UserProfiles.Where(x => x.Approval == 1).OrderByDescending(s => string.IsNullOrEmpty(s.Base64Photo) ? 0 : 1).ThenBy(s => s.CreatedAt).Take(20).ToListAsync();
+            return data;
         }
         public async Task<IEnumerable<StatsModel>> GetStats(string GroupBy, Dictionary<string, string> ressources)
         {

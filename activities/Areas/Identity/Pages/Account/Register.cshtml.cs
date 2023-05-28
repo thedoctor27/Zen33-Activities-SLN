@@ -149,7 +149,8 @@ namespace activities.Areas.Identity.Pages.Account
                         City = "",
                         Name = "",
                         Base64Photo = "",
-                        Other = ""
+                        Other = "",
+                        CreatedAt = DateTime.Now,
                     };
 
                     try

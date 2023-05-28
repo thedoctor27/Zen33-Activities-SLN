@@ -7,10 +7,15 @@
 @inject IStringLocalizer<Countries> CountriesLocalizer
 @inject IStringLocalizer<Languages> LanguagesLocalizer
 @using activities.Repository.Configs;
-
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Identity;
+@using activities.Repository.Activities;
+@inject IActivitiesRepository ActivitiesService;
 @inject IAppConfigsRepository _ConfigService;
 
-<MudContainer  Width="100%" MaxWidth="MaxWidth.ExtraExtraLarge">
+<MudContainer Width="100%" MaxWidth="MaxWidth.ExtraExtraLarge">
     <h1>Welcome</h1>
 
     <AuthorizeView Roles="Admin">
@@ -20,68 +25,153 @@
         }
         else
         {
+            <div class="row">
+                <div class="col-md-7">
+                    <ul class="nav nav-pills">
+                        <li class="nav-item">
+                            <a class="nav-link @((GroupName == "Country") ? "active" : "")" @onclick='() => SetActiveTab("Country")' href="javascript:void(0)">Countries</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @((GroupName == "Language") ? "active" : "")" @onclick='() => SetActiveTab("Language")' href="javascript:void(0)">Languages</a>
+                        </li>
+                    </ul>
 
-            <ul class="nav nav-pills">
-                <li class="nav-item">
-                    <a class="nav-link @((GroupName == "Country") ? "active" : "")" @onclick='() => SetActiveTab("Country")' href="javascript:void(0)">Countries</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @((GroupName == "Language") ? "active" : "")" @onclick='() => SetActiveTab("Language")' href="javascript:void(0)">Languages</a>
-                </li>
-            </ul>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th> @GroupName <a class="  btn btn-xs @((SortField == "Name") ? " btn-primary" : "btn-secondary")" @onclick='() => SortBy("Name")'> <i class="oi oi-sort-ascending"></i> </a> </th>
+                                <th> Total <a class="   btn btn-xs @((SortField == "Total") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Total")'> <i class="oi oi-sort-descending"></i> </a>  </th>
+                                <th> Review <a class="   btn btn-xs @((SortField == "Review") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Review")'> <i class="oi oi-sort-descending"></i> </a>  </th>
+                                <th> Approved <a class="   btn btn-xs @((SortField == "Approved") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Approved")'> <i class="oi oi-sort-descending"></i>  </a></th>
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th> @GroupName <a class="  btn btn-xs @((SortField == "Name") ? " btn-primary" : "btn-secondary")" @onclick='() => SortBy("Name")'> <i class="oi oi-sort-ascending"></i> </a> </th>
-                        <th> Total <a class="   btn btn-xs @((SortField == "Total") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Total")'> <i class="oi oi-sort-descending"></i> </a>  </th>
-                        <th> Review <a class="   btn btn-xs @((SortField == "Review") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Review")'> <i class="oi oi-sort-descending"></i> </a>  </th>
-                        <th> Approved <a class="   btn btn-xs @((SortField == "Approved") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Approved")'> <i class="oi oi-sort-descending"></i>  </a></th>
+                                <th> Not Approved <a class="   btn btn-xs @((SortField == "Not Approved") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Not Approved")'><i class="oi oi-sort-descending"></i> </a>  </th>
 
-                        <th> Not Approved <a class="   btn btn-xs @((SortField == "Not Approved") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Not Approved")'><i class="oi oi-sort-descending"></i> </a>  </th>
+                                <th> Member <a class="   btn btn-xs @((SortField == "Member") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Member")'> <i class="oi oi-sort-descending"></i> </a> </th>
 
-                        <th> Member <a class="   btn btn-xs @((SortField == "Member") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Member")'> <i class="oi oi-sort-descending"></i> </a> </th>
-
-                        <th> Available <a class="   btn btn-xs @((SortField == "Available") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Available")'> <i class="oi oi-sort-descending"></i> </a> </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var s in stats)
+                                <th> Available <a class="   btn btn-xs @((SortField == "Available") ? "btn-primary" : "btn-secondary")" @onclick='() => SortBy("Available")'> <i class="oi oi-sort-descending"></i> </a> </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in stats)
+                            {
+                                <tr>
+                                    <td>@s.name</td>
+                                    <td>@s.total</td>
+                                    <td>@s.review</td>
+                                    <td>@s.approved</td>
+                                    <td>@s.notapproved</td>
+                                    <td>@s.member</td>
+                                    <td>@s.available</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-5">
+                    <b>Last 20 Registred and approved profiles</b>
+                    <hr/>
+                    @if(top20 == null)
                     {
-                        <tr>
-                            <td>@s.name</td>
-                            <td>@s.total</td>
-                            <td>@s.review</td>
-                            <td>@s.approved</td>
-                            <td>@s.notapproved</td>
-                            <td>@s.member</td>
-                            <td>@s.available</td>
-                        </tr>
+                        <p class="text-center">Loading ....</p>
                     }
-                </tbody>
-            </table>
+                    else
+                    {
+                        @foreach (var profile in top20)
+                        {
+                            <MudCard class="m-2">
+                                <MudCardHeader>
+                                    <CardHeaderAvatar>
+                                        @if (string.IsNullOrEmpty(profile.Base64Photo))
+                                        {
+                                            <img class="" width="50" height="50" src="/images/DefaultUser.png">
+                                        }
+                                        else
+                                        {
+                                            <img class="" width="50" height="50" src="@profile.Base64Photo">
+
+                                        }
+                                    </CardHeaderAvatar>
+                                    <CardHeaderContent>
+                                        <MudText Typo="Typo.h6"> <b> <a target="_blank" href="Profile/@profile.UserId"> @profile.Name </a>  </b>  </MudText>
+                                        <p> Country : <b> @MapCountry(profile.IdCountry) </b> | City : @profile.City | Language : <b> @MapLanguage(profile.IdLanguage) </b> | Activity : <b>@MapActivity(profile.IdActivity)</b> 
+                                        <br>
+                                            @if (profile.Available)
+                                            {
+                                                <b> Available <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" />  </b>
+                                            }
+                                            else
+                                            {
+                                                <b> Not Available <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" />  </b>
+                                            }
+                                            |
+                                            @if (profile.Member == 1)
+                                            {
+                                                <b> Member <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Success" />  </b>
+                                            }
+                                            else
+                                            {
+                                                <b> Not Member <MudIconButton Icon="@Icons.Material.Filled.Block" Color="Color.Error" />  </b>
+                                            }
+                                        </p>
+                                    </CardHeaderContent>
+                                </MudCardHeader>
+                            </MudCard>
+
+                        }
+
+                    }
+                </div>
+            </div>
+
         }
 
 
-        @code {
-        private string GroupName;
-        private string SortField;
-        private IEnumerable<StatsModel>? stats;
+
+    </AuthorizeView>
+</MudContainer>
 
 
-        protected override async Task OnInitializedAsync()
+@code {
+    private string GroupName;
+    private string SortField;
+    private IEnumerable<StatsModel>? stats;
+    private IEnumerable<UserProfile> top20;
+
+    private Dictionary<string, string> countries = new Dictionary<string, string>();
+    private Dictionary<string, string> languages = new Dictionary<string, string>();
+    private Dictionary<int, string> activities = new Dictionary<int, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
         {
-            await SetActiveTab("Country");
-        }
-
-        public async Task SetActiveTab(string groupBy)
-        {
-            stats = null;
-            GroupName = groupBy;
-            SortField = "Name";
-            Dictionary<string, string> ressources = new Dictionary<string, string>();
-            switch (groupBy)
+            var userRole = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault();
+            if (userRole.Value.Contains("Admin"))
             {
+                countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+
+                languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+                activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
+
+
+                await SetActiveTab("Country");
+
+                top20 = await _profileService.Last20Registred();
+            }
+        }
+
+
+    }
+
+    public async Task SetActiveTab(string groupBy)
+    {
+        stats = null;
+        GroupName = groupBy;
+        SortField = "Name";
+        Dictionary<string, string> ressources = new Dictionary<string, string>();
+        switch (groupBy)
+        {
             case "Country":
                 ressources = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
                 break;
@@ -89,15 +179,15 @@
                 ressources = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
                 break;
             default: break;
-            }
-            stats = await _profileService.GetStats(groupBy, ressources);
-
         }
-        public async Task SortBy(string field)
+        stats = await _profileService.GetStats(groupBy, ressources);
+
+    }
+    public async Task SortBy(string field)
+    {
+        SortField = field;
+        switch (field)
         {
-            SortField = field;
-            switch (field)
-            {
             case "Name":
                 stats = stats.OrderBy(o => o.name);
                 break;
@@ -119,10 +209,39 @@
             case "Available":
                 stats = stats.OrderByDescending(o => o.available);
                 break;
-            }
         }
+    }
+    private string MapCountry(int id)
+    {
+        try
+        {
+            return countries[id.ToString()];
         }
-    </AuthorizeView>
-</MudContainer>
-
-
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+    private string MapLanguage(int id)
+    {
+        try
+        {
+            return languages[id.ToString()];
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+    private string MapActivity(int id)
+    {
+        try
+        {
+            return ActivitiesService.GetById(id).Name;
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+}

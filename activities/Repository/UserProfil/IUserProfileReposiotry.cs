@@ -4,6 +4,7 @@ namespace activities.Repository.UserProfil
 {
     public interface IUserProfileReposiotry
     {
+        Task<List<UserProfile>> Last20Registred();
         Task<IEnumerable<StatsModel>> GetStats(string GroupBy, Dictionary<string, string> ressources);
         Task<string> GetPhotoByUserId(string userId);
         Task<int> CountUsers();
