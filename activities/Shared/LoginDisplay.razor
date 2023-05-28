@@ -1,16 +1,30 @@
 ﻿@using activities.Repository.Configs;
-
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Identity;
+@using activities.Repository.Activities;
 @inject IAppConfigsRepository _ConfigService;
+
 <AuthorizeView Roles="Admin">
     <MudSwitch @onclick="@((e)=>TestModeChanged())" Checked="@TestEnabled" Label="Test Users" Color="Color.Error" />
 </AuthorizeView>
 <AuthorizeView>
     <Authorized>
-        <MudButton Href="Identity/Account/Manage" Variant="Variant.Text" Style="color:white" StartIcon="@Icons.Material.Filled.AccountCircle">Hello, @context.User.Identity?.Name!</MudButton>
+        <MudMenu Class="UserMenu" Label="@("Hello,"+ @context.User.Identity?.Name)">
+            <MudMenuItem Href="/ManageProfile" Icon="@Icons.Material.Filled.AccountCircle">
+                Manage profile
+            </MudMenuItem>
+            <MudMenuItem>
+                <MudButton Href="Identity/Account/Manage" StartIcon="@Icons.Material.Filled.AccountCircle">Manage account</MudButton>
+            </MudMenuItem>
+            <MudMenuItem>
+                <form method="post" action="Identity/Account/Logout">
+                    <MudButton Style="color:black" Color="Color.Dark" ButtonType="ButtonType.Submit" FullWidth="true" StartIcon="@Icons.Material.Filled.Logout">Log out</MudButton>
+                </form>
+            </MudMenuItem>
+        </MudMenu>
 
-        <form method="post" action="Identity/Account/Logout">
-            <MudButton Color="Color.Inherit" ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Logout">Log out</MudButton>
-        </form>
 
     </Authorized>
     <NotAuthorized>
@@ -23,19 +37,25 @@
 
 @code {
     public bool TestEnabled { get; set; }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
+
+        //set the testuser attribute of the profile in all forms
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
         {
-            //set the testuser attribute of the profile in all forms
-            try
+            var userRole = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault();
+            if (userRole.Value.Contains("Admin"))
             {
-                TestEnabled = await _ConfigService.GetTestsUserMode();
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                TestEnabled = false;
+                try
+                {
+                    TestEnabled = await _ConfigService.GetTestsUserMode();
+                    StateHasChanged();
+                }
+                catch (Exception ex)
+                {
+                    TestEnabled = false;
+                }
             }
         }
     }

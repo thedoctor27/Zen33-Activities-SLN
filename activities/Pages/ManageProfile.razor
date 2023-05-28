@@ -1,0 +1,301 @@
+﻿@page "/ManageProfile"
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Identity;
+@using activities.Extensions;
+@using activities.Models;
+@using activities.Repository.UserProfil;
+@inject IUserProfileReposiotry _profileService;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using activities.Repository.Activities;
+@inject IActivitiesRepository ActivitiesService;
+@inject IHttpContextAccessor HttpContextAccessor;
+@using Microsoft.Extensions.Localization;
+@using activities.Resources;
+@inject IStringLocalizer<Countries> CountriesLocalizer
+@inject IStringLocalizer<Languages> LanguagesLocalizer
+@inject UserManager<IdentityUser> _userManager;
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid Class="mt-2">
+        <AuthorizeView>
+            <Authorized>
+                <MudGrid Class="mt-2">
+
+                    @if (SearchedProfile != null)
+                    {
+                        <MudItem xs="8">
+                            <EditForm Context="adminForm" Model="@SearchedProfile" OnSubmit="(()=>SubmitEdit())">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><b> Manage profile </b></h5>
+
+                                        <MudTextField @bind-Value="SearchedProfile.Name" Label="Name" Variant="Variant.Text"></MudTextField>
+
+                                        <MudAutocomplete T="Country" Label="Countries" ValueChanged="@((e)=>CountryChanged(e))"
+                                                     SearchFunc="@SearchCountry" Value="SelectedCountry"
+                                                     ResetValueOnEmptyText="true"
+                                                     CoerceText="false" CoerceValue="false"
+                                                     AdornmentColor="Color.Primary" />
+
+                                        <MudTextField @bind-Value="SearchedProfile.City" Label="City" Variant="Variant.Text"></MudTextField>
+                                        <MudAutocomplete T="Language" Label="Languages" ValueChanged="@((e)=>LanguageChanged(e))"
+                                                     SearchFunc="@SearchLanguage" Value="SelectedLanguage"
+                                                     ResetValueOnEmptyText="true"
+                                                     CoerceText="false" CoerceValue="false"
+                                                     AdornmentColor="Color.Primary" />
+                                        <MudAutocomplete T="Activity" Label="Activities" ValueChanged="@((e)=>ActivityChanged(e))"
+                                                     SearchFunc="@SearchActivity" Value="SelectedActivity"
+                                                     ResetValueOnEmptyText="true"
+                                                     CoerceText="false" CoerceValue="false"
+                                                     AdornmentColor="Color.Primary" />
+                                        <MudTextField @bind-Value="SearchedProfile.About" Lines="3" Label="About" Variant="Variant.Text"></MudTextField>
+
+                                        <div class="form-group">
+                                            <label class="form-label">Photo</label>
+                                            <InputFile accept=".png,.jpeg,.jpg" OnChange="@LoadFiles" class="form-control"></InputFile>
+                                        </div>
+                                        <MudSwitch @bind-Checked="@SearchedProfile.Available" Label="Available" Color="Color.Inherit" />
+                                        <MudTextField @bind-Value="SearchedProfile.Other" Lines="3" Label="Other" Variant="Variant.Text"></MudTextField>
+
+                                    </div>
+
+                                    <p class="text-center text-success">@EditMessageSuccess</p>
+                                    <p class="text-center text-danger">@EditMessageError</p>
+
+                                    <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Search" Variant="Variant.Filled" Color="Color.Primary">Update informations</MudButton>
+
+                                </div>
+
+                            </EditForm>
+
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                @if (string.IsNullOrEmpty(Base64Photo))
+                                {
+                                    <p>Loading user photo ...</p>
+                                }
+                                else
+                                {
+                                    @if (Base64Photo == "NULL")
+                                    {
+                                        <img class="" width="200" height="200" src="/images/DefaultUser.png">
+                                    }
+                                    else
+                                    {
+                                        <img class="" width="200" height="200" src="@Base64Photo">
+
+                                    }
+                                }
+                            </MudPaper>
+
+                        </MudItem>
+                    }
+                    else
+                    {
+                        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                    }
+                </MudGrid>
+            </Authorized>
+            <NotAuthorized>
+                <MudItem xs="12">
+                    <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                        <p class="text-center text-danger">please log in so you can display all user details.</p>
+                    </MudPaper>
+                </MudItem>
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudGrid>
+</MudContainer>
+
+
+
+@code {
+
+    public string currentUserId;
+    public bool currentUserIsAdmin = false;
+
+    public bool isAdminChecked = false;
+
+    public bool loadingSubmit = false;
+
+    public UserProfile SearchedProfile;
+
+    public string EditMessageSuccess;
+    public string EditMessageError;
+
+    public string Base64Photo;
+    public string SearchedUserEmail;
+
+    private Dictionary<string, string> countries = new Dictionary<string, string>();
+    private Dictionary<string, string> languages = new Dictionary<string, string>();
+    private Dictionary<int, string> activities = new Dictionary<int, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+
+    }
+    private async Task Load()
+    {
+        countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+
+        languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+        activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).FirstOrDefault();
+        var userRole = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault();
+
+        if (userIdClaim == null)
+        {
+            currentUserId = "NotIdentified";
+        }
+        else
+        {
+            currentUserId = userIdClaim.Value;
+            SearchedProfile = await _profileService.GetByUserId(currentUserId);
+            if (SearchedProfile != null)
+            {
+                SelectedCountry = new Country { Id = SearchedProfile.IdCountry, Name = countries[SearchedProfile.IdCountry.ToString()] };
+                SelectedActivity = new Activity { Id = SearchedProfile.IdActivity, Name = activities[SearchedProfile.IdActivity] };
+                SelectedLanguage = new Language { Id = SearchedProfile.IdLanguage, Name = languages[SearchedProfile.IdLanguage.ToString()] };
+                Base64Photo = await _profileService.GetPhotoByUserId(SearchedProfile.UserId);
+            }
+
+        }
+
+    }
+
+
+    private async Task SubmitEdit()
+    {
+        try
+        {
+            loadingSubmit = true;
+            await _profileService.UserEdit(SearchedProfile.UserId, SearchedProfile);
+            EditMessageSuccess = "Informations has beed updated successfully";
+        }
+        catch
+        {
+            EditMessageError = "Error has occured while updating the user, try later";
+        }
+        loadingSubmit = false;
+        StateHasChanged();
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        loadingSubmit = true;
+        foreach (var file in e.GetMultipleFiles(1))
+        {
+            try
+            {
+                using (var ms = new MemoryStream())
+                {
+                    await file.OpenReadStream(10000000).CopyToAsync(ms);
+                    Base64Photo = "data:image/png;base64, " + await GenerateThumbnail.GetReducedImageBase64(new FormFile(ms, 0, ms.Length, "photo", "photo"));
+                    SearchedProfile.Base64Photo = Base64Photo;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                EditMessageError = "Fail to load image";
+            }
+        }
+        loadingSubmit = false;
+
+    }
+    private Country SelectedCountry;
+    private Language SelectedLanguage;
+    private Activity SelectedActivity;
+
+
+    private async Task<IEnumerable<Country>> SearchCountry(string value)
+    {
+        return countries.AsParallel().Where(x => (string.IsNullOrEmpty(value) ? true : x.Value.Contains(value, StringComparison.InvariantCultureIgnoreCase))).Select(s => new Country
+            {
+                Id = Convert.ToInt32(s.Key),
+                Name = s.Value
+            }).OrderBy(x => x.Name);
+    }
+    private async Task<IEnumerable<Language>> SearchLanguage(string value)
+    {
+        return languages.AsParallel().Where(x => (string.IsNullOrEmpty(value) ? true : x.Value.Contains(value, StringComparison.InvariantCultureIgnoreCase))).Select(s => new Language
+            {
+                Id = Convert.ToInt32(s.Key),
+                Name = s.Value
+            }).OrderBy(x => x.Name);
+    }
+    private async Task<IEnumerable<Activity>> SearchActivity(string value)
+    {
+        return activities.AsParallel().Where(x => (string.IsNullOrEmpty(value) ? true : x.Value.Contains(value, StringComparison.InvariantCultureIgnoreCase))).Select(s => new Activity
+            {
+                Id = Convert.ToInt32(s.Key),
+                Name = s.Value
+            }).OrderBy(x => x.Name);
+    }
+
+    private async Task CountryChanged(Country country)
+    {
+        if (country != null)
+        {
+            SelectedCountry = country;
+            SearchedProfile.IdCountry = country.Id;
+        }
+
+
+    }
+    private async Task LanguageChanged(Language language)
+    {
+        if (language != null)
+        {
+            SelectedLanguage = language;
+            SearchedProfile.IdLanguage = language.Id;
+        }
+    }
+    private async Task ActivityChanged(Activity activity)
+    {
+        if (activity != null)
+        {
+            SelectedActivity = activity;
+            SearchedProfile.IdActivity = activity.Id;
+        }
+    }
+    private string MapCountry(int id)
+    {
+        try
+        {
+            return countries[id.ToString()];
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+    private string MapLanguage(int id)
+    {
+        try
+        {
+            return languages[id.ToString()];
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+    private string MapActivity(int id)
+    {
+        try
+        {
+            return ActivitiesService.GetById(id).Name;
+        }
+        catch
+        {
+            return "NotFound_" + id;
+        }
+    }
+}
