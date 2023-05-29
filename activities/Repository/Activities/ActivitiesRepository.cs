@@ -30,7 +30,12 @@ namespace activities.Repository.Activities
         }
         public Activity GetById(int id)
         {
-            return Activities.Where(a => a.Id == id).FirstOrDefault();
+            var act = Activities.Where(a => a.Id == id).FirstOrDefault();
+            if(act == null)
+            {
+                return new Activity { Id = 0, Name = "NotFound_"+id };
+            }
+            return act;
         }
     }
 }

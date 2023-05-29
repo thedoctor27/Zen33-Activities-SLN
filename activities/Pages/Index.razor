@@ -158,6 +158,7 @@
                 languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
                 activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
 
+                await Task.Delay(1000);
 
                 await SetActiveTab("Country");
 
