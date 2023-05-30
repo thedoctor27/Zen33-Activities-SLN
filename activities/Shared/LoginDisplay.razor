@@ -1,15 +1,4 @@
-﻿@using activities.Repository.Configs;
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@using Microsoft.AspNetCore.Components.Authorization
-@using System.Security.Claims;
-@using Microsoft.AspNetCore.Identity;
-@using activities.Repository.Activities;
-@inject IAppConfigsRepository _ConfigService;
-
-<AuthorizeView Roles="Admin">
-    <MudSwitch @onclick="@((e)=>TestModeChanged())" Checked="@TestEnabled" Label="Test Users" Color="Color.Error" />
-</AuthorizeView>
-<AuthorizeView>
+﻿<AuthorizeView>
     <Authorized>
         <MudMenu Class="UserMenu" Label="@("Hello,"+ @context.User.Identity?.Name)">
             <MudMenuItem Href="/ManageProfile" Icon="@Icons.Material.Filled.AccountCircle">
@@ -32,36 +21,3 @@
         <MudButton Href="Identity/Account/Register" Variant="Variant.Text" Style="color:white" StartIcon="@Icons.Material.Filled.AccountCircle">Register</MudButton>
     </NotAuthorized>
 </AuthorizeView>
-
-
-
-@code {
-    public bool TestEnabled { get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-
-        //set the testuser attribute of the profile in all forms
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity.IsAuthenticated)
-        {
-            var userRole = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault();
-            if (userRole.Value.Contains("Admin"))
-            {
-                try
-                {
-                    TestEnabled = await _ConfigService.GetTestsUserMode();
-                    StateHasChanged();
-                }
-                catch (Exception ex)
-                {
-                    TestEnabled = false;
-                }
-            }
-        }
-    }
-    private async Task TestModeChanged()
-    {
-        await _ConfigService.SetTestsUserMode(!TestEnabled);
-        TestEnabled = !TestEnabled;
-    }
-}
