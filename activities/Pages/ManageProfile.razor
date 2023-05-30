@@ -158,9 +158,9 @@
             SearchedProfile = await _profileService.GetByUserId(currentUserId);
             if (SearchedProfile != null)
             {
-                SelectedCountry = new Country { Id = SearchedProfile.IdCountry, Name = countries[SearchedProfile.IdCountry.ToString()] };
-                SelectedActivity = new Activity { Id = SearchedProfile.IdActivity, Name = activities[SearchedProfile.IdActivity] };
-                SelectedLanguage = new Language { Id = SearchedProfile.IdLanguage, Name = languages[SearchedProfile.IdLanguage.ToString()] };
+                SelectedCountry = SearchedProfile.IdCountry == 0 ? null : new Country { Id = SearchedProfile.IdCountry, Name = countries[SearchedProfile.IdCountry.ToString()] };
+                SelectedActivity = SearchedProfile.IdActivity == 0 ? null : new Activity { Id = SearchedProfile.IdActivity, Name = activities[SearchedProfile.IdActivity] };
+                SelectedLanguage = SearchedProfile.IdLanguage == 0 ? null : new Language { Id = SearchedProfile.IdLanguage, Name = languages[SearchedProfile.IdLanguage.ToString()] };
                 Base64Photo = await _profileService.GetPhotoByUserId(SearchedProfile.UserId);
             }
 
