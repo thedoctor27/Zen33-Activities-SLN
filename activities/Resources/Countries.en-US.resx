@@ -118,33 +118,63 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="1" xml:space="preserve">
-    <value>China</value>
+    <value>ChinaFR</value>
   </data>
   <data name="10" xml:space="preserve">
-    <value>France</value>
+    <value>FranceFR</value>
+  </data>
+  <data name="11" xml:space="preserve">
+    <value>test1</value>
+  </data>
+  <data name="12" xml:space="preserve">
+    <value>test2</value>
+  </data>
+  <data name="13" xml:space="preserve">
+    <value>test3</value>
+  </data>
+  <data name="14" xml:space="preserve">
+    <value>test4</value>
+  </data>
+  <data name="15" xml:space="preserve">
+    <value>test5</value>
+  </data>
+  <data name="16" xml:space="preserve">
+    <value>test6</value>
+  </data>
+  <data name="17" xml:space="preserve">
+    <value>test7</value>
+  </data>
+  <data name="18" xml:space="preserve">
+    <value>test8</value>
+  </data>
+  <data name="19" xml:space="preserve">
+    <value>test9</value>
   </data>
   <data name="2" xml:space="preserve">
-    <value>United States</value>
+    <value>United StatesFR</value>
+  </data>
+  <data name="20" xml:space="preserve">
+    <value>test10</value>
   </data>
   <data name="3" xml:space="preserve">
-    <value>India</value>
+    <value>IndiaFR</value>
   </data>
   <data name="4" xml:space="preserve">
-    <value>Japan</value>
+    <value>JapanFR</value>
   </data>
   <data name="5" xml:space="preserve">
-    <value>Germany</value>
+    <value>GermanyFR</value>
   </data>
   <data name="6" xml:space="preserve">
-    <value>Russia</value>
+    <value>RussiaFR</value>
   </data>
   <data name="7" xml:space="preserve">
-    <value>Indonesia</value>
+    <value>IndonesiaFR</value>
   </data>
   <data name="8" xml:space="preserve">
-    <value>Brazil</value>
+    <value>BrazilFR</value>
   </data>
   <data name="9" xml:space="preserve">
-    <value>United Kingdom</value>
+    <value>United KingdomFR</value>
   </data>
 </root>
