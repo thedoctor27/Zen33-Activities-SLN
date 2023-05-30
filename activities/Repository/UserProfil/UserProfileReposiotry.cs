@@ -85,7 +85,7 @@ namespace activities.Repository.UserProfil
         }
         public async Task<string[]> GetProfilesLanguages(int idCOuntry)
         {
-            return await _db.UserProfiles.Where(p => idCOuntry == 0 ? true : p.IdCountry == idCOuntry).Distinct().Select(s => s.IdLanguage.ToString()).ToArrayAsync();
+            return await _db.UserProfiles.Where(p => (idCOuntry == 0 ? true : p.IdCountry == idCOuntry)).Distinct().Select(s => s.IdLanguage.ToString()).ToArrayAsync();
         }
         public async Task<int> CountUsers()
         {
