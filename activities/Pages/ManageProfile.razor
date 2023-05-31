@@ -34,18 +34,18 @@
 
                                         <MudAutocomplete T="Country" Label="Countries" ValueChanged="@((e)=>CountryChanged(e))"
                                                      SearchFunc="@SearchCountry" Value="SelectedCountry"
-                                                     ResetValueOnEmptyText="true" Strict="false"
+                                                     ResetValueOnEmptyText="true" Strict="false" MaxItems="null"
                                                      CoerceText="false" CoerceValue="false"
                                                      AdornmentColor="Color.Primary" />
 
                                         <MudTextField @bind-Value="SearchedProfile.City" Label="City" Variant="Variant.Text"></MudTextField>
                                         <MudAutocomplete T="Language" Label="Languages" ValueChanged="@((e)=>LanguageChanged(e))"
-                                                     SearchFunc="@SearchLanguage" Value="SelectedLanguage" Strict="false"
+                                                     SearchFunc="@SearchLanguage" Value="SelectedLanguage" Strict="false" MaxItems="null"
                                                      ResetValueOnEmptyText="true"
                                                      CoerceText="false" CoerceValue="false"
                                                      AdornmentColor="Color.Primary" />
                                         <MudAutocomplete T="Activity" Label="Activities" ValueChanged="@((e)=>ActivityChanged(e))"
-                                                     SearchFunc="@SearchActivity" Value="SelectedActivity" Strict="false"
+                                                     SearchFunc="@SearchActivity" Value="SelectedActivity" Strict="false" MaxItems="null"
                                                      ResetValueOnEmptyText="true"
                                                      CoerceText="false" CoerceValue="false"
                                                      AdornmentColor="Color.Primary" />

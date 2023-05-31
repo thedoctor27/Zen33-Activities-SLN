@@ -33,7 +33,7 @@
                                 <MudAutocomplete T="Country" Label="Countries" ValueChanged="@((e)=>CountryChanged(e))"
                                                  SearchFunc="@SearchCountry" Value="SelectedCountry"
                                                  ResetValueOnEmptyText="true" Strict="false"
-                                                 CoerceText="false" CoerceValue="false"
+                                                 CoerceText="false" CoerceValue="false" MaxItems="null"
                                                  AdornmentColor="Color.Primary" />
                             </MudItem>
                             <MudItem xs="5">
@@ -43,7 +43,7 @@
                                 <MudAutocomplete T="Language" Label="Languages" ValueChanged="@((e)=>LanguageChanged(e))"
                                                  SearchFunc="@SearchLanguage" Value="SelectedLanguage"
                                                  ResetValueOnEmptyText="true" Strict="false"
-                                                 CoerceText="false" CoerceValue="false"
+                                                 CoerceText="false" CoerceValue="false" MaxItems="null"
                                                  AdornmentColor="Color.Primary" />
                             </MudItem>
                             <MudItem xs="5">
@@ -57,7 +57,7 @@
                                 <MudAutocomplete T="Activity" Label="Activities" ValueChanged="@((e)=>ActivityChanged(e))"
                                                  SearchFunc="@SearchActivity" Value="SelectedActivity"
                                                  ResetValueOnEmptyText="true" Strict="false"
-                                                 CoerceText="false" CoerceValue="false"
+                                                 CoerceText="false" CoerceValue="false" MaxItems="null"
                                                  AdornmentColor="Color.Primary" />
                             </MudItem>
                             <MudItem xs="5">
@@ -246,7 +246,7 @@
             Approval = -1,// set this to 1 and it will display only approved users ( -1 : all users)
             Member = -1,
             Available = -1,
-            testUser =-1// from search users page, param will be igonored
+            testUser = -1// from search users page, param will be igonored
         };
 
     private Country SelectedCountry;
@@ -311,7 +311,8 @@
             {
                 Id = Convert.ToInt32(s.Key),
                 Name = s.Value
-            }).OrderBy(x => x.Name);
+            }).OrderBy(x => x.Name).ToList();
+
     }
     private async Task<IEnumerable<Activity>> SearchActivity(string value)
     {
