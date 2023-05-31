@@ -32,7 +32,7 @@
                             <MudItem xs="7">
                                 <MudAutocomplete T="Country" Label="Countries" ValueChanged="@((e)=>CountryChanged(e))"
                                                  SearchFunc="@SearchCountry" Value="SelectedCountry"
-                                                 ResetValueOnEmptyText="true"
+                                                 ResetValueOnEmptyText="true" Strict="false"
                                                  CoerceText="false" CoerceValue="false"
                                                  AdornmentColor="Color.Primary" />
                             </MudItem>
@@ -42,7 +42,7 @@
                             <MudItem xs="7">
                                 <MudAutocomplete T="Language" Label="Languages" ValueChanged="@((e)=>LanguageChanged(e))"
                                                  SearchFunc="@SearchLanguage" Value="SelectedLanguage"
-                                                 ResetValueOnEmptyText="true"
+                                                 ResetValueOnEmptyText="true" Strict="false"
                                                  CoerceText="false" CoerceValue="false"
                                                  AdornmentColor="Color.Primary" />
                             </MudItem>
@@ -56,7 +56,7 @@
                             <MudItem xs="7">
                                 <MudAutocomplete T="Activity" Label="Activities" ValueChanged="@((e)=>ActivityChanged(e))"
                                                  SearchFunc="@SearchActivity" Value="SelectedActivity"
-                                                 ResetValueOnEmptyText="true"
+                                                 ResetValueOnEmptyText="true" Strict="false"
                                                  CoerceText="false" CoerceValue="false"
                                                  AdornmentColor="Color.Primary" />
                             </MudItem>
