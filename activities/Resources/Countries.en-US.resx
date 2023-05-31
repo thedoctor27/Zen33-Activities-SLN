@@ -118,37 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="1" xml:space="preserve">
-    <value>ChinaFR</value>
+    <value>China</value>
   </data>
   <data name="10" xml:space="preserve">
-    <value>FranceFR</value>
-  </data>
-  <data name="11" xml:space="preserve">
-    <value>test1</value>
-  </data>
-  <data name="12" xml:space="preserve">
-    <value>test2</value>
-  </data>
-  <data name="13" xml:space="preserve">
-    <value>test3</value>
-  </data>
-  <data name="14" xml:space="preserve">
-    <value>test4</value>
-  </data>
-  <data name="15" xml:space="preserve">
-    <value>test5</value>
-  </data>
-  <data name="16" xml:space="preserve">
-    <value>test6</value>
-  </data>
-  <data name="17" xml:space="preserve">
-    <value>test7</value>
-  </data>
-  <data name="18" xml:space="preserve">
-    <value>test8</value>
-  </data>
-  <data name="19" xml:space="preserve">
-    <value>test9</value>
+    <value>France</value>
   </data>
   <data name="11" xml:space="preserve">
     <value>Canada</value>
@@ -178,10 +151,7 @@
     <value>Spain</value>
   </data>
   <data name="2" xml:space="preserve">
-    <value>United StatesFR</value>
-  </data>
-  <data name="20" xml:space="preserve">
-    <value>test10</value>
+    <value>United States</value>
   </data>
   <data name="20" xml:space="preserve">
     <value>Argentina</value>
@@ -192,25 +162,28 @@
   <data name="22" xml:space="preserve">
     <value>Iran</value>
   </data>
+  <data name="23" xml:space="preserve">
+    <value>Switzerland</value>
+  </data>
   <data name="3" xml:space="preserve">
-    <value>IndiaFR</value>
+    <value>India</value>
   </data>
   <data name="4" xml:space="preserve">
-    <value>JapanFR</value>
+    <value>Japan</value>
   </data>
   <data name="5" xml:space="preserve">
-    <value>GermanyFR</value>
+    <value>Germany</value>
   </data>
   <data name="6" xml:space="preserve">
-    <value>RussiaFR</value>
+    <value>Russia</value>
   </data>
   <data name="7" xml:space="preserve">
-    <value>IndonesiaFR</value>
+    <value>Indonesia</value>
   </data>
   <data name="8" xml:space="preserve">
-    <value>BrazilFR</value>
+    <value>Brazil</value>
   </data>
   <data name="9" xml:space="preserve">
-    <value>United KingdomFR</value>
+    <value>United Kingdom</value>
   </data>
 </root>
