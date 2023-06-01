@@ -181,9 +181,11 @@
                         TestEnabled = false;
                     }
 
-                    await SetActiveTab("Country");
+                    var t1 = SetActiveTab("Country");
+                    var t2 = _profileService.Last20Registred();
 
-                    top20 = await _profileService.Last20Registred();
+                    await Task.WhenAll(t1, t2);
+                    top20 = t2.Result;
                 }
             }
 

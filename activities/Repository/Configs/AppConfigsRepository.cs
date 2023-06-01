@@ -6,38 +6,51 @@ namespace activities.Repository.Configs
 {
     public class AppConfigsRepository : IAppConfigsRepository
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory;
 
-        public AppConfigsRepository(ApplicationDbContext db)
+        public AppConfigsRepository(IDbContextFactory<ApplicationDbContext> dbFactory)
         {
-            _db = db;
+            _dbFactory = dbFactory;
         }
         public async Task SetTestsUserMode(bool TestUserEnable)
         {
-            var config = await _db.AppConfigs.FirstOrDefaultAsync();
-            config.EnableTestUser = TestUserEnable;
-            await _db.SaveChangesAsync();
+            using (var _db = _dbFactory.CreateDbContext())
+            {
+                var config = await _db.AppConfigs.FirstOrDefaultAsync();
+                config.EnableTestUser = TestUserEnable;
+                await _db.SaveChangesAsync();
+            }
+
         }
         public async Task<bool> GetTestsUserMode()
         {
-            var config = await _db.AppConfigs.FirstOrDefaultAsync();
-            if(config == null) {
-                await InitConfig();
-                return false;
+            using (var _db = _dbFactory.CreateDbContext())
+            {
+                var config = await _db.AppConfigs.FirstOrDefaultAsync();
+                if (config == null)
+                {
+                    await InitConfig();
+                    return false;
+                }
+                return config.EnableTestUser;
             }
-            return config.EnableTestUser;
+
         }
         private async Task InitConfig()
         {
-            var config =await _db.AppConfigs.FirstOrDefaultAsync();
-            if (config == null)
+            using (var _db = _dbFactory.CreateDbContext())
             {
-                _db.AppConfigs.Add(new AppConfig
+                var config = await _db.AppConfigs.FirstOrDefaultAsync();
+                if (config == null)
                 {
-                    EnableTestUser = false,
-                });
-                _db.SaveChanges();
+                    _db.AppConfigs.Add(new AppConfig
+                    {
+                        EnableTestUser = false,
+                    });
+                    _db.SaveChanges();
+                }
             }
+
         }
     }
 }
