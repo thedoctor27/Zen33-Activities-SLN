@@ -11,12 +11,13 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using MudBlazor.Services;
 using activities.Models;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddLocalization();
 
 builder.Services.AddMudServices();
+
+//builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 
 builder.Services.AddRazorPages().AddViewLocalization(LanguageViewLocationExpanderFormat
