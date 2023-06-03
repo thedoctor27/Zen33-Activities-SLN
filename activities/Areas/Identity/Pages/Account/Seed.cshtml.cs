@@ -93,7 +93,7 @@ namespace activities.Areas.Identity.Pages.Account
             int[] CountriesIDs = countries.Select(s => s.Id).ToArray();
             int[] LanguagesIDs = languages.Select(s => s.Id).ToArray();
             int[] ActivitiesIDs = activities.Select(s => s.Id).ToArray();
-            for (int i=1; i <= 100; i++)
+            for (int i=1; i <= 11000; i++)
             {
                 Random random = new Random();
 
