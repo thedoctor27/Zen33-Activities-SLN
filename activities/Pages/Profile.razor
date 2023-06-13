@@ -41,10 +41,10 @@
                     }
                     else
                     {
-                        <div class="row">
+                        <MudGrid>
                             @if (currentUserIsAdmin)
                             {
-                                <div class="col-md-7">
+                                <MudItem xs="8">
                                     <EditForm Context="adminForm" Model="@SearchedProfile" OnSubmit="(()=>SubmitEdit())">
                                         <div class="card">
                                             <div class="card-body">
@@ -152,7 +152,7 @@
                                     </EditForm>
 
 
-                                </div>
+                                </MudItem>
                             }
                             else
                             {
@@ -278,8 +278,8 @@
                                 </MudItem>
 
                             }
+                        </MudGrid>
 
-                        </div>
                     }
                 }
 

@@ -57,7 +57,25 @@
                                         </div>
                                         <MudSwitch @bind-Checked="@SearchedProfile.Available" Label="Available" Color="Color.Inherit" />
                                         <MudTextField @bind-Value="SearchedProfile.Other" Lines="3" Label="Other" Variant="Variant.Text"></MudTextField>
+                                        <br/>
+                                        @if (currentUserIsAdmin)
+                                        {
+                                            <MudText>Approval</MudText>
+                                            <MudRadioGroup @bind-SelectedOption="SearchedProfile.Approval">
+                                                <MudRadio Option="0">Under Review</MudRadio>
+                                                <MudRadio Option="1" >Yes</MudRadio>
+                                                <MudRadio Option="2" >No</MudRadio>
+                                            </MudRadioGroup>
+                                            <MudTextField @bind-Value="SearchedProfile.ApprovalMessage" Lines="3" Label="Approval Message" Variant="Variant.Text"></MudTextField>
+                                            <br />
+                                            <MudText>Member</MudText>
 
+                                            <MudRadioGroup @bind-SelectedOption="SearchedProfile.Member">
+                                                <MudRadio Option="1">Yes</MudRadio>
+                                                <MudRadio Option="0">No</MudRadio>
+                                            </MudRadioGroup>
+
+                                        }
                                     </div>
 
                                     <p class="text-center text-success">@EditMessageSuccess</p>
@@ -154,6 +172,10 @@
         }
         else
         {
+            if (userRole != null && userRole.Value.Contains("Admin"))
+            {
+                currentUserIsAdmin = true;
+            }
             currentUserId = userIdClaim.Value;
             SearchedProfile = await _profileService.GetByUserId(currentUserId);
             if (SearchedProfile != null)

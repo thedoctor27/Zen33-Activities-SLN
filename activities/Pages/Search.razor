@@ -27,54 +27,62 @@
                     </CardHeaderActions>
                 </MudCardHeader>
                 <MudCardContent Class="pt-0">
-                    <EditForm Model="@searchModel" OnSubmit="(()=>SubmitNewSearch())">
-                        <MudGrid>
-                            <MudItem xs="7">
-                                <MudAutocomplete T="Country" Label="Countries" ValueChanged="@((e)=>CountryChanged(e))"
+                    @if (FormIsLoading){
+                        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                    }
+                    else
+                    {
+                        <EditForm Model="@searchModel" OnSubmit="(()=>SubmitNewSearch())">
+                            <MudGrid>
+                                <MudItem xs="7">
+                                    <MudAutocomplete T="Country" Label="Countries" ValueChanged="@((e)=>CountryChanged(e))"
                                                  SearchFunc="@SearchCountry" Value="SelectedCountry"
-                                                 ResetValueOnEmptyText="true" Strict="false" 
+                                                 ResetValueOnEmptyText="true" Strict="false"
                                                  CoerceText="false" CoerceValue="false" MaxItems="null"
                                                  AdornmentColor="Color.Primary" />
-                            </MudItem>
-                            <MudItem xs="5">
-                                <MudTextField @bind-Value="searchModel.City" Label="City" Variant="Variant.Text"></MudTextField>
-                            </MudItem>
-                            <MudItem xs="7">
-                                <MudAutocomplete T="Language" Label="Languages" ValueChanged="@((e)=>LanguageChanged(e))"
+                                </MudItem>
+                                <MudItem xs="5">
+                                    <MudTextField @bind-Value="searchModel.City" Label="City" Variant="Variant.Text"></MudTextField>
+                                </MudItem>
+                                <MudItem xs="7">
+                                    <MudAutocomplete T="Language" Label="Languages" ValueChanged="@((e)=>LanguageChanged(e))"
                                                  SearchFunc="@SearchLanguage" Value="SelectedLanguage"
-                                                 ResetValueOnEmptyText="true" Strict="false" 
+                                                 ResetValueOnEmptyText="true" Strict="false"
                                                  CoerceText="false" CoerceValue="false" MaxItems="null"
                                                  AdornmentColor="Color.Primary" />
-                            </MudItem>
-                            <MudItem xs="5">
-                                <MudSelect T="int" Label="Available state" @bind-Value="searchModel.Available" AnchorOrigin="Origin.BottomCenter">
-                                    <MudSelectItem Value="-1">All Users</MudSelectItem>
-                                    <MudSelectItem Value="0">Only vailable </MudSelectItem>
-                                    <MudSelectItem Value="1">Only not available</MudSelectItem>
-                                </MudSelect>
-                            </MudItem>
-                            <MudItem xs="7">
-                                <MudAutocomplete T="Activity" Label="Activities" ValueChanged="@((e)=>ActivityChanged(e))"
+                                </MudItem>
+                                <MudItem xs="5">
+                                    <MudSelect T="int" Label="Available state" @bind-Value="searchModel.Available" AnchorOrigin="Origin.BottomCenter">
+                                        <MudSelectItem Value="-1">All Users</MudSelectItem>
+                                        <MudSelectItem Value="0">Only vailable </MudSelectItem>
+                                        <MudSelectItem Value="1">Only not available</MudSelectItem>
+                                    </MudSelect>
+                                </MudItem>
+                                <MudItem xs="7">
+                                    <MudAutocomplete T="Activity" Label="Activities" ValueChanged="@((e)=>ActivityChanged(e))"
                                                  SearchFunc="@SearchActivity" Value="SelectedActivity"
                                                  ResetValueOnEmptyText="true" Strict="false"
                                                  CoerceText="false" CoerceValue="false" MaxItems="null"
                                                  AdornmentColor="Color.Primary" />
-                            </MudItem>
-                            <MudItem xs="5">
-                                <MudSelect T="int" Label="Results per page" @bind-Value="searchModel.PageSize" AnchorOrigin="Origin.BottomCenter">
-                                    <MudSelectItem Value="10">10</MudSelectItem>
-                                    <MudSelectItem Value="25">25</MudSelectItem>
-                                    <MudSelectItem Value="50">50 </MudSelectItem>
-                                    <MudSelectItem Value="100">100</MudSelectItem>
-                                </MudSelect>
-                            </MudItem>
-                        </MudGrid>
-                        <MudCardActions>
-                            <MudButton OnClick="ClearForm" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Clear">Clear</MudButton>
-                            <MudSpacer />
-                            <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Search" Variant="Variant.Filled" disabled="@(searchModel.IdLanguage==0&&searchModel.IdCountry==0&&string.IsNullOrEmpty(searchModel.City))" Color="Color.Primary">Search</MudButton>
-                        </MudCardActions>
-                    </EditForm>
+                                </MudItem>
+                                <MudItem xs="5">
+                                    <MudSelect T="int" Label="Results per page" @bind-Value="searchModel.PageSize" AnchorOrigin="Origin.BottomCenter">
+                                        <MudSelectItem Value="10">10</MudSelectItem>
+                                        <MudSelectItem Value="25">25</MudSelectItem>
+                                        <MudSelectItem Value="50">50 </MudSelectItem>
+                                        <MudSelectItem Value="100">100</MudSelectItem>
+                                    </MudSelect>
+                                </MudItem>
+                            </MudGrid>
+                            <MudCardActions>
+                                <MudButton OnClick="ClearForm" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Clear">Clear</MudButton>
+                                <MudSpacer />
+                                <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Search" Variant="Variant.Filled" disabled="@(searchModel.IdLanguage==0&&searchModel.IdCountry==0&&string.IsNullOrEmpty(searchModel.City))" Color="Color.Primary">Search</MudButton>
+                            </MudCardActions>
+                        </EditForm>
+                    }
+
+
                 </MudCardContent>
 
             </MudCard>
@@ -209,6 +217,8 @@
     private int TotalSearchResults = 0;
     private bool FirstSubmit = true;
     private bool DisplayInCards = false;
+    private bool FormIsLoading = true;
+
     private async Task<TableData<UserProfile>> ServerReload(TableState state)
     {
         if (searchModel.IdLanguage != 0 || searchModel.IdCountry != 0 || !string.IsNullOrEmpty(searchModel.City))
@@ -276,7 +286,7 @@
         ActiveCountries = await _profileService.GetProfilesCountries();
         ActiveActivities = await _profileService.GetProfilesActivites();
         ActiveLanguages = await _profileService.GetProfilesLanguages(0);
-
+        FormIsLoading = false;
     }
 
     private void ClearForm()
@@ -331,6 +341,7 @@
             SelectedCountry = country;
             searchModel.IdCountry = country.Id;
             searchModel.IdLanguage = 0;
+            SelectedLanguage = null;
         }
         else
         {

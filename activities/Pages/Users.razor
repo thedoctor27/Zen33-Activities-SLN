@@ -129,6 +129,7 @@
                     <th>Available</th>
                     <th>Approval</th>
                     <th>Member</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -153,6 +154,7 @@
                         <td> @(profile.Available == true ? "Yes" : "No")</td>
                         <td>@(profile.Approval == 0 ? "Under Review" : profile.Approval == 1 ? "Yes" : "No")</td>
                         <td>@(profile.Member == 1 ? "Yes" : "No")</td>
+                        <td><MudButton target="_blank" Href="@("Profile/"+@profile.UserId)" Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary">Manage</MudButton></td>
                     </tr>
                 }
             </tbody>
