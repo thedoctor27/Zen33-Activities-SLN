@@ -33,7 +33,7 @@
         else
         {
             <div class="row">
-                <div class="col-md-7">
+                <div class="col-md-12">
                     <div class="col-md-12">
                         <ul class="nav nav-pills">
                             <li class="nav-item">
@@ -80,61 +80,6 @@
                     </MudPaper>
 
                 </div>
-                <div class="col-md-5">
-                    <b>Last 20 Registred and approved profiles</b>
-                    <hr />
-                    @if (top20 == null)
-                    {
-                        <p class="text-center">Loading ....</p>
-                    }
-                    else
-                    {
-                        @foreach (var profile in top20)
-                        {
-                            <MudCard class="m-2">
-                                <MudCardHeader>
-                                    <CardHeaderAvatar>
-                                        @if (string.IsNullOrEmpty(profile.Base64Photo))
-                                        {
-                                            <img class="" width="50" height="50" src="/images/DefaultUser.png">
-                                        }
-                                        else
-                                        {
-                                            <img class="" width="50" height="50" src="@profile.Base64Photo">
-
-                                        }
-                                    </CardHeaderAvatar>
-                                    <CardHeaderContent>
-                                        <MudText Typo="Typo.h6"> <b> <a target="_blank" href="Profile/@profile.UserId"> @profile.Name </a>  </b>  </MudText>
-                                        <p>
-                                            Country : <b> @MapCountry(profile.IdCountry) </b> | City : @profile.City | Language : <b> @MapLanguage(profile.IdLanguage) </b> | Activity : <b>@MapActivity(profile.IdActivity)</b>
-                                            <br>
-                                            @if (profile.Available)
-                                            {
-                                                <b> Available <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" />  </b>
-                                            }
-                                            else
-                                            {
-                                                <b> Not Available <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" />  </b>
-                                            }
-                                            |
-                                            @if (profile.Member == 1)
-                                            {
-                                                <b> Member <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Success" />  </b>
-                                            }
-                                            else
-                                            {
-                                                <b> Not Member <MudIconButton Icon="@Icons.Material.Filled.Block" Color="Color.Error" />  </b>
-                                            }
-                                        </p>
-                                    </CardHeaderContent>
-                                </MudCardHeader>
-                            </MudCard>
-
-                        }
-
-                    }
-                </div>
             </div>
 
         }
@@ -142,6 +87,77 @@
 
 
     </AuthorizeView>
+    <br />
+    <br />
+    <MudGrid>
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardHeader Class="pb-1">
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Last 20 Registred and approved profiles</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if(loading){
+                        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                    }
+                    else
+                    {
+                        <MudTable T="UserProfile" Items="top20" Dense="true" Hover="true">
+
+                            <HeaderContent>
+                                <MudTh>photo</MudTh>
+                                <MudTh>Name</MudTh>
+                                <MudTh>Country</MudTh>
+                                <MudTh>City</MudTh>
+                                <MudTh>Language</MudTh>
+                                <MudTh>Activity</MudTh>
+                                <MudTh>Available</MudTh>
+                                <MudTh>Member</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>
+                                    @if (!string.IsNullOrEmpty(context.Base64Photo))
+                                    {
+                                        <img class="" width="50" height="50" src="@context.Base64Photo">
+                                    }
+                                    else
+                                    {
+                                        <img class="" width="50" height="50" src="/images/DefaultUser.png">
+                                    }
+                                </MudTd>
+                                <MudTd DataLabel="Name">
+                                    <b> <a target="_blank" href="Profile/@context.UserId"> @context.Name </a> </b>
+                                </MudTd>
+                                <MudTd DataLabel="Country">
+                                    @MapCountry(context.IdCountry)
+                                </MudTd>
+                                <MudTd DataLabel="City">
+                                    @context.City
+                                </MudTd>
+                                <MudTd DataLabel="Language">
+                                    @MapLanguage(context.IdLanguage)
+                                </MudTd>
+                                <MudTd DataLabel="Activity">
+                                    @MapActivity(context.IdActivity)
+                                </MudTd>
+                                <MudTd DataLabel="Available">
+                                    @(context.Available == true ? "Yes" : "No")
+                                </MudTd>
+                                <MudTd DataLabel="Member">
+                                    @(context.Member == 1 ? "Yes" : "No")
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+
+                    }
+                </MudCardContent>
+                <MudCardActions>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
 </MudContainer>
 
 
@@ -152,44 +168,54 @@
     private string SortField;
     private IEnumerable<StatsModel>? stats;
     private IEnumerable<UserProfile> top20;
-
+    private bool loading = true;
     private Dictionary<string, string> countries = new Dictionary<string, string>();
     private Dictionary<string, string> languages = new Dictionary<string, string>();
     private Dictionary<int, string> activities = new Dictionary<int, string>();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity.IsAuthenticated)
+        if (firstRender)
         {
-            var userRole = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault();
-            if (userRole != null)
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated)
             {
-                if (userRole.Value.Contains("Admin"))
+                var userRole = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault();
+                if (userRole != null)
                 {
-                    countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
-
-                    languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
-                    activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
-                    try
+                    if (userRole.Value.Contains("Admin"))
                     {
-                        TestEnabled = await _ConfigService.GetTestsUserMode();
-                        StateHasChanged();
-                    }
-                    catch (Exception ex)
-                    {
-                        TestEnabled = false;
-                    }
+                        countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
 
-                    var t1 = SetActiveTab("Country");
-                    var t2 = _profileService.Last20Registred();
+                        languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+                        activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
+                        try
+                        {
+                            TestEnabled = await _ConfigService.GetTestsUserMode();
+                            StateHasChanged();
+                        }
+                        catch (Exception ex)
+                        {
+                            TestEnabled = false;
+                        }
 
-                    await Task.WhenAll(t1, t2);
-                    top20 = t2.Result;
+                        var t1 = SetActiveTab("Country");
+                        var t2 = _profileService.Last20Registred();
+
+                        await Task.WhenAll(t1, t2);
+                        top20 = t2.Result;
+                    }
                 }
+
+            }
+            else
+            {
+                top20 = await _profileService.Last20Registred();
             }
 
         }
+        loading = false;
+        StateHasChanged();
 
 
     }
