@@ -13,6 +13,10 @@
 @using activities.Resources;
 @inject IStringLocalizer<Countries> CountriesLocalizer
 @inject IStringLocalizer<Languages> LanguagesLocalizer
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Identity;
 
 <MudContainer Width="100%" MaxWidth="MaxWidth.ExtraExtraLarge">
     <MudGrid Class="mt-2">
@@ -54,7 +58,7 @@
                                 <MudItem xs="5">
                                     <MudSelect T="int" Label="Available state" @bind-Value="searchModel.Available" AnchorOrigin="Origin.BottomCenter">
                                         <MudSelectItem Value="-1">All Users</MudSelectItem>
-                                        <MudSelectItem Value="0">Only vailable </MudSelectItem>
+                                        <MudSelectItem Value="0">Only available </MudSelectItem>
                                         <MudSelectItem Value="1">Only not available</MudSelectItem>
                                     </MudSelect>
                                 </MudItem>
@@ -221,6 +225,20 @@
 
     private async Task<TableData<UserProfile>> ServerReload(TableState state)
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            var userRole = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault();
+            if (userRole != null)
+            {
+                if (userRole.Value.Contains("Admin"))
+                {
+                    searchModel.Approval = -1; // display all for admin
+                }
+
+            }
+
+        }
         if (searchModel.IdLanguage != 0 || searchModel.IdCountry != 0 || !string.IsNullOrEmpty(searchModel.City))
         {
             if (FirstSubmit)
@@ -253,7 +271,7 @@
             IdLanguage = 0,
             City = "",
             PageSize = 10,
-            Approval = -1,// set this to 1 and it will display only approved users ( -1 : all users)
+            Approval = 1,// set this to 1 and it will display only approved users ( -1 : all users)
             Member = -1,
             Available = -1,
             testUser = -1// from search users page, param will be igonored

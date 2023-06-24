@@ -196,6 +196,7 @@
         try
         {
             loadingSubmit = true;
+            SearchedProfile.Approval = 0;
             await _profileService.UserEdit(SearchedProfile.UserId, SearchedProfile);
             EditMessageSuccess = "Profile has beed updated successfully";
         }

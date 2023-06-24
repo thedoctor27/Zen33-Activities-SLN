@@ -98,7 +98,8 @@
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
-                    @if(loading){
+                    @if (loading)
+                    {
                         <MudProgressCircular Color="Color.Default" Indeterminate="true" />
                     }
                     else
@@ -177,6 +178,11 @@
     {
         if (firstRender)
         {
+            countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+
+            languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+            activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
+
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             if (authState.User.Identity.IsAuthenticated)
             {
@@ -185,10 +191,7 @@
                 {
                     if (userRole.Value.Contains("Admin"))
                     {
-                        countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
 
-                        languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
-                        activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
                         try
                         {
                             TestEnabled = await _ConfigService.GetTestsUserMode();
@@ -199,21 +202,14 @@
                             TestEnabled = false;
                         }
 
-                        var t1 = SetActiveTab("Country");
-                        var t2 = _profileService.Last20Registred();
-
-                        await Task.WhenAll(t1, t2);
-                        top20 = t2.Result;
+                        await  SetActiveTab("Country");
                     }
                 }
 
             }
-            else
-            {
-                top20 = await _profileService.Last20Registred();
-            }
 
         }
+        top20 = await _profileService.Last20Registred();
         loading = false;
         StateHasChanged();
 
