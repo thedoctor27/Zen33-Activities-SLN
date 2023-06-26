@@ -74,7 +74,12 @@
                                                 <MudRadio Option="1">Yes</MudRadio>
                                                 <MudRadio Option="0">No</MudRadio>
                                             </MudRadioGroup>
-
+                                        }
+                                        else
+                                        {
+                                            <p>Approval : <b> @(SearchedProfile.Approval == 0 ? "Under Review" : SearchedProfile.Approval == 1 ? "Approved" : "Not Approved")  </b></p>
+                                            <p>Approval response : <br/> @SearchedProfile.ApprovalMessage</p>
+                                            <p>Member : <b>@(SearchedProfile.Member ==1 ? "Yes" : "No")</b></p>
                                         }
                                     </div>
 
