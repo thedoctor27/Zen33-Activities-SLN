@@ -178,48 +178,52 @@
     {
         if (firstRender)
         {
-            countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+            await loadData();
+        }
 
-            languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
-            activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
 
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity.IsAuthenticated)
+    }
+    private async Task loadData()
+    {
+        countries = CountriesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+
+        languages = LanguagesLocalizer.GetAllStrings().ToDictionary(s => s.Name, s => s.Value);
+        activities = ActivitiesService.GetAll().ToDictionary(s => s.Id, s => s.Name);
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            var userRole = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault();
+            if (userRole != null)
             {
-                var userRole = authState?.User?.Claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault();
-                if (userRole != null)
+                if (userRole.Value.Contains("Admin"))
                 {
-                    if (userRole.Value.Contains("Admin"))
+
+                    try
                     {
-
-                        try
-                        {
-                            TestEnabled = await _ConfigService.GetTestsUserMode();
-                            StateHasChanged();
-                        }
-                        catch (Exception ex)
-                        {
-                            TestEnabled = false;
-                        }
-
-                        await  SetActiveTab("Country");
+                        TestEnabled = await _ConfigService.GetTestsUserMode();
+                        StateHasChanged();
                     }
-                }
+                    catch (Exception ex)
+                    {
+                        TestEnabled = false;
+                    }
 
+                    await SetActiveTab("Country");
+                }
             }
 
         }
         top20 = await _profileService.Last20Registred();
         loading = false;
         StateHasChanged();
-
-
     }
-
     private async Task TestModeChanged()
     {
         await _ConfigService.SetTestsUserMode(!TestEnabled);
         TestEnabled = !TestEnabled;
+        await loadData();
+
     }
 
     public async Task SetActiveTab(string groupBy)
