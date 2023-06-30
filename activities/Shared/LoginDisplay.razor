@@ -1,8 +1,8 @@
 ﻿<AuthorizeView>
     <Authorized>
         <MudMenu Class="UserMenu" Label="@("Hello,"+ @context.User.Identity?.Name)">
-            <MudMenuItem Href="/ManageProfile" Icon="@Icons.Material.Filled.AccountCircle">
-                Manage profile
+            <MudMenuItem>       
+                <MudButton Href="/ManageProfile" StartIcon="@Icons.Material.Filled.AccountCircle"> Manage profile</MudButton>
             </MudMenuItem>
             <MudMenuItem>
                 <MudButton Href="Identity/Account/Manage" StartIcon="@Icons.Material.Filled.AccountCircle">Manage account</MudButton>
