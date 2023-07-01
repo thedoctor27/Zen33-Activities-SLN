@@ -37,7 +37,7 @@ namespace activities.Repository.UserProfil
             {
                 bool TestUsers = await appConfigs.GetTestsUserMode();
 
-                var data = await _db.UserProfiles.Where(x => x.Approval == 1 && (!TestUsers ? !x.Test : true)).OrderByDescending(s => string.IsNullOrEmpty(s.Base64Photo) ? 0 : 1).ThenBy(s => s.CreatedAt).Take(20).ToListAsync();
+                var data = await _db.UserProfiles.Where(x => x.Approval == 1 && (!TestUsers ? !x.Test : true)).OrderByDescending(s => string.IsNullOrEmpty(s.Base64Photo) ? 0 : 1).ThenByDescending(s => s.CreatedAt).Take(20).ToListAsync();
                 return data;
             }
 
