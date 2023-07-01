@@ -37,7 +37,7 @@ namespace activities.Repository.UserProfil
             {
                 bool TestUsers = await appConfigs.GetTestsUserMode();
 
-                var data = await _db.UserProfiles.Where(x => x.Approval == 1 && (!TestUsers ? !x.Test : true)).OrderByDescending(s => string.IsNullOrEmpty(s.Base64Photo) ? 0 : 1).ThenByDescending(s => s.CreatedAt).Take(20).ToListAsync();
+                var data = await _db.UserProfiles.Where(x => x.Approval == 1 && (!TestUsers ? !x.Test : true)).OrderByDescending(s => string.IsNullOrEmpty(s.Base64Photo) ? 0 : 1).ThenByDescending(s => s.ApprovedAt).Take(20).ToListAsync();
                 return data;
             }
 
@@ -259,8 +259,19 @@ namespace activities.Repository.UserProfil
                     throw new Exception("Profile not found");
                 }
 
-                userProfile.About = profile.About;
+                if (profile.Approval == 0 || profile.Approval == 2)
+                {
+                    userProfile.ApprovedAt = null;
+                }
+
+                if(profile.Approval == 1 && userProfile.Approval != 1)
+                {
+                    userProfile.ApprovedAt = DateTime.Now;
+                }
+
                 userProfile.Approval = profile.Approval;
+                userProfile.About = profile.About;
+
                 userProfile.Other = profile.Other;
                 userProfile.Available = profile.Available;
                 if (!string.IsNullOrEmpty(profile.Base64Photo))

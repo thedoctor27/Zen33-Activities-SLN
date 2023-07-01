@@ -35,6 +35,7 @@ namespace activities.Models
 
         public string UserId { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? ApprovedAt { get; set; }
         public bool Test { get; set; }
         public virtual IdentityUser User { get; set; }
 
