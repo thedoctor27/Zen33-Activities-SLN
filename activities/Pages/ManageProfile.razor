@@ -15,7 +15,7 @@
 @inject IStringLocalizer<Countries> CountriesLocalizer
 @inject IStringLocalizer<Languages> LanguagesLocalizer
 @inject UserManager<IdentityUser> _userManager;
-
+@using System.Reflection;
 <MudContainer MaxWidth="MaxWidth.Large">
     <MudGrid Class="mt-2">
         <AuthorizeView>
@@ -33,22 +33,22 @@
                                         <MudTextField @bind-Value="SearchedProfile.Name" Label="Name" Variant="Variant.Text"></MudTextField>
 
                                         <MudAutocomplete T="Country" Label="Countries" ValueChanged="@((e)=>CountryChanged(e))"
-                                                     SearchFunc="@SearchCountry" Value="SelectedCountry"
-                                                     ResetValueOnEmptyText="true" Strict="false" MaxItems="null"
-                                                     CoerceText="false" CoerceValue="false"
-                                                     AdornmentColor="Color.Primary" />
+                                                         SearchFunc="@SearchCountry" Value="SelectedCountry"
+                                                         ResetValueOnEmptyText="true" Strict="false" MaxItems="null"
+                                                         CoerceText="false" CoerceValue="false"
+                                                         AdornmentColor="Color.Primary" />
 
                                         <MudTextField @bind-Value="SearchedProfile.City" Label="City" Variant="Variant.Text"></MudTextField>
                                         <MudAutocomplete T="Language" Label="Languages" ValueChanged="@((e)=>LanguageChanged(e))"
-                                                     SearchFunc="@SearchLanguage" Value="SelectedLanguage" Strict="false" MaxItems="null"
-                                                     ResetValueOnEmptyText="true"
-                                                     CoerceText="false" CoerceValue="false"
-                                                     AdornmentColor="Color.Primary" />
+                                                         SearchFunc="@SearchLanguage" Value="SelectedLanguage" Strict="false" MaxItems="null"
+                                                         ResetValueOnEmptyText="true"
+                                                         CoerceText="false" CoerceValue="false"
+                                                         AdornmentColor="Color.Primary" />
                                         <MudAutocomplete T="Activity" Label="Activities" ValueChanged="@((e)=>ActivityChanged(e))"
-                                                     SearchFunc="@SearchActivity" Value="SelectedActivity" Strict="false" MaxItems="null"
-                                                     ResetValueOnEmptyText="true"
-                                                     CoerceText="false" CoerceValue="false"
-                                                     AdornmentColor="Color.Primary" />
+                                                         SearchFunc="@SearchActivity" Value="SelectedActivity" Strict="false" MaxItems="null"
+                                                         ResetValueOnEmptyText="true"
+                                                         CoerceText="false" CoerceValue="false"
+                                                         AdornmentColor="Color.Primary" />
                                         <MudTextField @bind-Value="SearchedProfile.About" Lines="3" Label="About" Variant="Variant.Text"></MudTextField>
 
                                         <div class="form-group">
@@ -57,14 +57,14 @@
                                         </div>
                                         <MudSwitch @bind-Checked="@SearchedProfile.Available" Label="Available" Color="Color.Inherit" />
                                         <MudTextField @bind-Value="SearchedProfile.Other" Lines="3" Label="Other" Variant="Variant.Text"></MudTextField>
-                                        <br/>
+                                        <br />
                                         @if (currentUserIsAdmin)
                                         {
                                             <MudText>Approval</MudText>
                                             <MudRadioGroup @bind-SelectedOption="SearchedProfile.Approval">
                                                 <MudRadio Option="0">Under Review</MudRadio>
-                                                <MudRadio Option="1" >Yes</MudRadio>
-                                                <MudRadio Option="2" >No</MudRadio>
+                                                <MudRadio Option="1">Yes</MudRadio>
+                                                <MudRadio Option="2">No</MudRadio>
                                             </MudRadioGroup>
                                             <MudTextField @bind-Value="SearchedProfile.ApprovalMessage" Lines="3" Label="Approval Message" Variant="Variant.Text"></MudTextField>
                                             <br />
@@ -78,8 +78,8 @@
                                         else
                                         {
                                             <p>Approval : <b> @(SearchedProfile.Approval == 0 ? "Under Review" : SearchedProfile.Approval == 1 ? "Approved" : "Not Approved")  </b></p>
-                                            <p>Approval response : <br/> @SearchedProfile.ApprovalMessage</p>
-                                            <p>Member : <b>@(SearchedProfile.Member ==1 ? "Yes" : "No")</b></p>
+                                            <p>Approval response : <br /> @SearchedProfile.ApprovalMessage</p>
+                                            <p>Member : <b>@(SearchedProfile.Member == 1 ? "Yes" : "No")</b></p>
                                         }
                                     </div>
 
@@ -143,6 +143,7 @@
 
     public bool loadingSubmit = false;
 
+    public UserProfile OriginalSearchedProfile;
     public UserProfile SearchedProfile;
 
     public string EditMessageSuccess;
@@ -195,17 +196,38 @@
 
     }
 
+    private bool isChanginOnlyAvailablity(UserProfile oldProfile, UserProfile userProfile)
+    {
+        Type type = oldProfile.GetType();
+        PropertyInfo[] properties = type.GetProperties();
+
+        foreach (PropertyInfo property in properties)
+        {
+            object value1 = property.GetValue(oldProfile);
+            object value2 = property.GetValue(userProfile);
+            if (!Equals(value1, value2) && property.Name != "Available")
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private async Task SubmitEdit()
     {
         try
         {
             loadingSubmit = true;
-            SearchedProfile.Approval = 0;
+            var originalState = await _profileService.GetByUserId(currentUserId);
+            if (!isChanginOnlyAvailablity(originalState, SearchedProfile))
+            {
+                SearchedProfile.Approval = 0;
+            }
+
             await _profileService.UserEdit(SearchedProfile.UserId, SearchedProfile);
             EditMessageSuccess = "Profile has beed updated successfully";
         }
-        catch
+        catch(Exception ex)
         {
             EditMessageError = "Error has occured while updating the user, try later";
         }
