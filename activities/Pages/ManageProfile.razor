@@ -56,7 +56,7 @@
                                             <InputFile accept=".png,.jpeg,.jpg" OnChange="@LoadFiles" class="form-control"></InputFile>
                                         </div>
                                         <MudSwitch @bind-Checked="@SearchedProfile.Available" Label="Available" Color="Color.Inherit" />
-                                        <MudTextField @bind-Value="SearchedProfile.Other" Lines="3" Label="Other" Variant="Variant.Text"></MudTextField>
+                                        <MudTextField @bind-Value="SearchedProfile.Other" Lines="2" Label="Other" Variant="Variant.Text" MaxLength="65"></MudTextField>
                                         <br />
                                         @if (currentUserIsAdmin)
                                         {
